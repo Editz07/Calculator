@@ -9,13 +9,15 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --cyan: #00d4ff;
-  --green: #00ff9d;
-  --bg: #030812;
-  --card-bg: rgba(4, 14, 30, 0.92);
-  --text: #d6eef8;
-  --muted: #2e5f78;
-  --border: rgba(0, 212, 255, 0.22);
+  --cyan:     #00d4ff;
+  --green:    #00ff9d;
+  --red:      #ff4d6d;
+  --amber:    #ffaa00;
+  --bg:       #030812;
+  --card-bg:  rgba(4,14,30,0.92);
+  --text:     #d6eef8;
+  --muted:    #2e5f78;
+  --border:   rgba(0,212,255,0.22);
 }
 
 body {
@@ -25,22 +27,23 @@ body {
   overflow-x: hidden;
 }
 
+/* ── Shared background ── */
 #bg-canvas {
   position: fixed; inset: 0;
   width: 100%; height: 100%;
-  z-index: 0;
-  pointer-events: none;
+  z-index: 0; pointer-events: none;
 }
-
 #scanlines {
-  position: fixed; inset: 0; z-index: 3;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 3px,
-    rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px
-  );
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px);
 }
 
+/* ── Pages ── */
+#login-page, #app-page { display: none; }
+#login-page.active, #app-page.active { display: block; }
+
+/* ── Shared layout ── */
 .page {
   position: relative; z-index: 2;
   min-height: 100vh;
@@ -48,30 +51,7 @@ body {
   padding: 60px 20px;
 }
 
-#openPopup {
-  position: fixed; top: 18px; right: 20px; z-index: 100;
-  background: transparent;
-  border: 1px solid rgba(0,212,255,0.35);
-  color: var(--cyan);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-  padding: 7px 16px; cursor: pointer;
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
-  transition: all 0.25s;
-}
-#openPopup:hover {
-  background: rgba(0,212,255,0.08);
-  box-shadow: 0 0 18px rgba(0,212,255,0.25);
-}
-
-.ver-chip {
-  position: fixed; top: 18px; left: 20px; z-index: 100;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 2px; color: var(--muted);
-  border: 1px solid rgba(0,212,255,0.1); padding: 6px 12px;
-  pointer-events: none;
-}
-
+/* ── Card ── */
 .card {
   position: relative;
   width: 430px; max-width: 100%;
@@ -89,22 +69,162 @@ body {
   50%     { box-shadow: 0 0 0 1px rgba(0,212,255,0.25), 0 0 60px rgba(0,212,255,0.18), 0 0 120px rgba(0,255,157,0.06); }
 }
 
+/* Corner accents */
 .c { position: absolute; width: 18px; height: 18px; pointer-events: none; }
 .c-tl { top:-1px;    left:-1px;   border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); }
 .c-tr { top:-1px;    right:-1px;  border-top:2px solid var(--cyan); border-right:2px solid var(--cyan); }
 .c-bl { bottom:-1px; left:-1px;   border-bottom:2px solid var(--cyan); border-left:2px solid var(--cyan); }
 .c-br { bottom:-1px; right:-1px;  border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); }
 
-.calculator-title {
+/* ── Typography ── */
+.card-title {
   font-family: 'Orbitron', monospace; font-weight: 900;
   font-size: 15px; letter-spacing: 3px; text-align: center;
-  color: var(--text); text-transform: uppercase; margin-bottom: 6px;
-  pointer-events: none;
+  color: var(--text); text-transform: uppercase; margin-bottom: 4px;
+}
+.card-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); text-align: center; margin-bottom: 0;
 }
 .title-line {
   display: block; margin: 10px auto 26px;
   width: 60px; height: 1px;
   background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+
+/* ── Fields ── */
+.field { margin-bottom: 18px; }
+
+label {
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px; pointer-events: none;
+}
+
+/* ── Invalid input state ── */
+input.invalid {
+  border-bottom-color: var(--red) !important;
+  background: rgba(255,77,109,0.04) !important;
+  animation: invalidPulse 1.5s ease-in-out infinite !important;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+  width: 100%; padding: 10px;
+  background: rgba(0,20,44,0.8);
+  border: none;
+  border-bottom: 1px solid rgba(0,212,255,0.3);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 15px; outline: none;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  position: relative; z-index: 1;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-bottom-color: var(--cyan);
+  background: rgba(0,212,255,0.06);
+  box-shadow: 0 1px 0 0 var(--cyan), 0 0 20px rgba(0,212,255,0.08);
+}
+input[type="text"]:hover,
+input[type="password"]:hover,
+input[type="number"]:hover,
+select:hover { border-bottom-color: rgba(0,212,255,0.6); }
+input[readonly] { opacity: 0.35; cursor: not-allowed; }
+input[type="password"] { letter-spacing: 4px; }
+select { cursor: pointer; }
+select option { background: #060f1e; color: var(--text); }
+
+.sel-wrap { position: relative; }
+.sel-wrap::after {
+  content: '▾'; position: absolute; right: 8px; top: 50%;
+  transform: translateY(-50%); color: var(--cyan);
+  pointer-events: none; font-size: 11px;
+}
+
+/* ── Login button ── */
+.login-btn {
+  width: 100%; margin-top: 8px;
+  padding: 13px;
+  background: rgba(0,212,255,0.07);
+  border: 1px solid rgba(0,212,255,0.4);
+  color: var(--cyan);
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: 12px; letter-spacing: 4px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.25s;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+.login-btn:hover {
+  background: rgba(0,212,255,0.15);
+  box-shadow: 0 0 24px rgba(0,212,255,0.3), inset 0 0 24px rgba(0,212,255,0.05);
+}
+.login-btn:active { transform: scale(0.98); }
+
+/* ── Login error ── */
+.login-error {
+  margin-top: 14px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--red);
+  text-shadow: 0 0 10px rgba(255,77,109,0.5);
+  text-align: center;
+  min-height: 16px;
+}
+
+/* ── Discord note ── */
+.discord-note {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0,212,255,0.08);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px; line-height: 1.5;
+  color: var(--muted); text-align: center;
+}
+.discord-note span {
+  color: rgba(0,212,255,0.7); font-weight: 600;
+}
+
+/* ── Fixed top buttons ── */
+.fixed-btn {
+  position: fixed; top: 18px; z-index: 100;
+  background: transparent;
+  border: 1px solid rgba(0,212,255,0.35);
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  padding: 7px 16px; cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: all 0.25s;
+}
+.fixed-btn:hover {
+  background: rgba(0,212,255,0.08);
+  box-shadow: 0 0 18px rgba(0,212,255,0.25);
+}
+#openPopup   { right: 20px; }
+#signOutBtn  {
+  left: 20px;
+  border-color: rgba(255,77,109,0.35);
+  color: var(--red);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+#signOutBtn:hover {
+  background: rgba(255,77,109,0.08);
+  box-shadow: 0 0 18px rgba(255,77,109,0.25);
+  border-color: rgba(255,77,109,0.7);
+}
+
+/* ── Calculator-page specifics ── */
+.calculator-title {
+  font-family: 'Orbitron', monospace; font-weight: 900;
+  font-size: 15px; letter-spacing: 3px; text-align: center;
+  color: var(--text); text-transform: uppercase; margin-bottom: 6px;
   pointer-events: none;
 }
 
@@ -130,10 +250,7 @@ body {
   border-radius: 12px; position: relative;
   cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s;
 }
-.neo-track:hover {
-  border-color: rgba(0,212,255,0.7);
-  box-shadow: 0 0 12px rgba(0,212,255,0.2);
-}
+.neo-track:hover { border-color: rgba(0,212,255,0.7); box-shadow: 0 0 12px rgba(0,212,255,0.2); }
 .neo-thumb {
   position: absolute; top: 3px; left: 3px;
   width: 16px; height: 16px; border-radius: 50%;
@@ -143,46 +260,6 @@ body {
   pointer-events: none;
 }
 .neo-track.is-on .neo-thumb { transform: translateX(24px); }
-
-.field { margin-bottom: 18px; }
-
-label {
-  display: block;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 6px;
-  pointer-events: none;
-}
-
-input[type="number"], select {
-  width: 100%; padding: 10px;
-  background: rgba(0,20,44,0.8);
-  border: none;
-  border-bottom: 1px solid rgba(0,212,255,0.3);
-  color: var(--text);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 15px; outline: none;
-  -webkit-appearance: none; appearance: none;
-  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
-  cursor: text;
-  position: relative; z-index: 1;
-}
-input[type="number"]:focus, select:focus {
-  border-bottom-color: var(--cyan);
-  background: rgba(0,212,255,0.06);
-  box-shadow: 0 1px 0 0 var(--cyan), 0 0 20px rgba(0,212,255,0.08);
-}
-input[type="number"]:hover, select:hover { border-bottom-color: rgba(0,212,255,0.6); }
-input[readonly] { opacity: 0.35; cursor: not-allowed; }
-select { cursor: pointer; }
-select option { background: #060f1e; color: var(--text); }
-
-.sel-wrap { position: relative; }
-.sel-wrap::after {
-  content: '▾'; position: absolute; right: 8px; top: 50%;
-  transform: translateY(-50%); color: var(--cyan);
-  pointer-events: none; font-size: 11px;
-}
 
 .risk-wrap { margin-top: 26px; }
 .risk-tag {
@@ -195,20 +272,17 @@ select option { background: #060f1e; color: var(--text); }
   position: relative; padding: 20px 16px;
   background: rgba(0,212,255,0.03);
   border: 1px solid rgba(0,212,255,0.18);
-  text-align: center; overflow: hidden;
-  pointer-events: none;
+  text-align: center; overflow: hidden; pointer-events: none;
 }
 .risk-card::before {
-  content: '';
-  position: absolute; inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: linear-gradient(135deg, rgba(0,212,255,0.05), transparent 60%);
   pointer-events: none;
 }
 .risk-scan {
   position: absolute; left: 0; right: 0; height: 1px; top: 0;
   background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
-  animation: scanLine 3s linear infinite;
-  pointer-events: none;
+  animation: scanLine 3s linear infinite; pointer-events: none;
 }
 @keyframes scanLine { 0%{top:0;opacity:1} 95%{top:100%;opacity:.4} 100%{top:0;opacity:0} }
 
@@ -225,8 +299,7 @@ select option { background: #060f1e; color: var(--text); }
 .status-bar {
   display: flex; align-items: center; justify-content: space-between;
   margin-top: 14px; padding-top: 10px;
-  border-top: 1px solid rgba(0,212,255,0.08);
-  pointer-events: none;
+  border-top: 1px solid rgba(0,212,255,0.08); pointer-events: none;
 }
 .status-dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -236,6 +309,7 @@ select option { background: #060f1e; color: var(--text); }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 .status-text { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--muted); }
 
+/* ── Overlay & Popup ── */
 .overlay {
   position: fixed; inset: 0; z-index: 2000;
   background: rgba(1,5,14,0.8); backdrop-filter: blur(10px);
@@ -256,7 +330,6 @@ select option { background: #060f1e; color: var(--text); }
 .popup::-webkit-scrollbar { width: 4px; }
 .popup::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
 .popup.show { transform: translate(-50%,-50%) scale(1); opacity: 1; pointer-events: auto; }
-
 .popup-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 20px; padding-bottom: 14px;
@@ -273,7 +346,6 @@ select option { background: #060f1e; color: var(--text); }
   font-family: 'Share Tech Mono', monospace; transition: all 0.2s;
 }
 .close-btn:hover { background: rgba(0,212,255,0.1); box-shadow: 0 0 12px rgba(0,212,255,0.3); }
-
 .log-entry { display:flex; gap:14px; margin-bottom:14px; align-items:flex-start; }
 .log-ver {
   flex-shrink:0; font-family:'Share Tech Mono',monospace;
@@ -288,80 +360,120 @@ select option { background: #060f1e; color: var(--text); }
 
 <canvas id="bg-canvas"></canvas>
 <div id="scanlines"></div>
-<div class="ver-chip">V3.0</div>
-<button id="openPopup">[ UPDATES ]</button>
 
-<div class="page">
-  <div class="card" id="parallaxCard">
-    <div class="c c-tl"></div><div class="c c-tr"></div>
-    <div class="c c-bl"></div><div class="c c-br"></div>
+<!-- LOGIN PAGE -->
+<div id="login-page">
+  <div class="page">
+    <div class="card">
+      <div class="c c-tl"></div><div class="c c-tr"></div>
+      <div class="c c-bl"></div><div class="c c-br"></div>
 
-    <div class="calculator-title" id="calculatorTitle">Future's Risk Calculator</div>
-    <span class="title-line"></span>
+      <div class="card-title">Access The Calculator</div>
+      <div class="card-sub">Authorized users only</div>
+      <span class="title-line"></span>
 
-    <div class="mode-row">
-      <span class="mode-lbl on" id="lbl-fut">FUTURES</span>
-      <div class="neo-track" id="neoTrack" role="switch" aria-checked="false" tabindex="0">
-        <div class="neo-thumb"></div>
+      <div class="field">
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" placeholder="username" autocomplete="off" spellcheck="false" />
       </div>
-      <span class="mode-lbl off" id="lbl-cfd">MT5</span>
-    </div>
 
-    <input type="checkbox" id="moveDirection" style="display:none">
-
-    <div class="field">
-      <label id="instrument-label">Instrument</label>
-      <div class="sel-wrap"><select id="instrument"></select></div>
-    </div>
-
-    <div class="field">
-      <label id="contracts-label">Contracts</label>
-      <input type="number" id="contracts" value="1" min="0" />
-    </div>
-
-    <div class="field">
-      <label id="stop-label">Stop Loss (points)</label>
-      <input type="number" id="stop" value="8" min="0" />
-    </div>
-
-    <div class="field" id="maxRisk-group" style="display:none">
-      <label id="maxRisk-label">Max Risk ($)</label>
-      <input type="number" id="maxRisk" value="1000" min="0" />
-    </div>
-
-    <div class="risk-wrap">
-      <div class="risk-tag">Calculated Output</div>
-      <div class="risk-card">
-        <div class="risk-scan"></div>
-        <div id="riskDisplay">Risk: $0.00</div>
+      <div class="field">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="off" />
       </div>
-    </div>
 
-    <div class="status-bar">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="status-dot"></div>
-        <span class="status-text">LIVE</span>
+      <button class="login-btn" id="loginBtn">[ Authenticate ]</button>
+
+      <div class="login-error" id="loginError"></div>
+
+      <div class="discord-note">
+        Forgotten your credentials?<br>
+        DM <span>editztrades</span> on Discord.
       </div>
-      <span class="status-text" id="modeChip">MODE: FUTURES</span>
-      <span class="status-text" id="clockEl">--:--:--</span>
     </div>
   </div>
 </div>
 
-  <!-- Overlay + Popup -->
+<!-- APP PAGE -->
+<div id="app-page">
+  <button class="fixed-btn" id="signOutBtn">[ Sign Out ]</button>
+  <button class="fixed-btn" id="openPopup">[ Updates ]</button>
+
+  <div class="page">
+    <div class="card" id="parallaxCard">
+      <div class="c c-tl"></div><div class="c c-tr"></div>
+      <div class="c c-bl"></div><div class="c c-br"></div>
+
+      <div class="calculator-title" id="calculatorTitle">Future's Risk Calculator</div>
+      <span class="title-line"></span>
+
+      <div class="mode-row">
+        <span class="mode-lbl on" id="lbl-fut">FUTURES</span>
+        <div class="neo-track" id="neoTrack" role="switch" aria-checked="false" tabindex="0">
+          <div class="neo-thumb"></div>
+        </div>
+        <span class="mode-lbl off" id="lbl-cfd">MT5</span>
+      </div>
+
+      <input type="checkbox" id="moveDirection" style="display:none">
+
+      <div class="field">
+        <label id="instrument-label">Instrument</label>
+        <div class="sel-wrap"><select id="instrument"></select></div>
+      </div>
+
+      <div class="field">
+        <label id="contracts-label">Contracts</label>
+        <input type="number" id="contracts" value="1" min="0" />
+      </div>
+
+      <div class="field">
+        <label id="stop-label">Stop Loss (points)</label>
+        <input type="number" id="stop" value="8" min="0" />
+      </div>
+
+      <div class="field" id="maxRisk-group" style="display:none">
+        <label id="maxRisk-label">Max Risk ($)</label>
+        <input type="number" id="maxRisk" value="1000" min="0" />
+      </div>
+
+      <div class="risk-wrap">
+        <div class="risk-tag">Calculated Output</div>
+        <div class="risk-card">
+          <div class="risk-scan"></div>
+          <div id="riskDisplay">Risk: $0.00</div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="status-dot"></div>
+          <span class="status-text" id="sessionUser">--</span>
+        </div>
+        <span class="status-text" id="modeChip">MODE:</span>
+        <span class="status-text" id="sessionTimer">--:--:--</span>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay" id="overlay"></div>
   <div class="popup" id="popup">
     <div class="popup-header">
       <span>// System Updates</span>
       <button class="close-btn" id="closePopup">&#x2715;</button>
     </div>
-    <div class="log-entry"><span class="log-ver cur">V3.0</span><span class="log-text">Redefined The UI look of the website Giving It A Smooth, Futuristic Cyberpunk Design (More Features To Arrive).</span></div>
-    <div class="log-entry"><span class="log-ver prev">V2.9</span><span class="log-text">Added A Reset Button, To Reset Values To Their Defaults (Next Update Is Big).  </span></div>
-    <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Added A Red Outline To The Input Boxes To Warn You of An Invalid Input. </span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Inputs now show a red outline when a value is invalid, blank, or zero — giving a clear visual warning before calculating.</span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Fixed MT5 Gold instrument — Lot Size now correctly defaults to 100 (NAS and US30 remain at 1).</span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Changed The Time At The Bottom of The Calculator To A Countdown of The Session Timeout Before It Signs You Out Automatically With The Account Mode You Are Logged Into.</span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Changed The Version Text To A Working Sign out Button Top Left Corner of The Main Page.</span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Added A New Working Login Page Feature (DM editztrades for more details).</span></div>
+    <div class="log-entry"><span class="log-ver prev">V3.0</span><span class="log-text">Redefined The UI look of the website Giving It A Smooth, Futuristic Cyberpunk Design (More Features To Arrive).</span></div>
+    <div class="log-entry"><span class="log-ver prev">V2.9</span><span class="log-text">Added A Reset Button, To Reset Values To Their Defaults (Next Update Is Big). </span></div>
+    <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Added A Red Outline To The Input Boxes To Warn You of An Invalid Input.</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Added A Tooltips To Each Input To Help In Understanding What To Input.</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Removed The Lot Size Input From The MT5 Side (Behind The Scenes Code Functioning). </span></div>
     <div class="log-entry"><span class="log-ver prev">V2.7</span><span class="log-text">Added A Brand New Toggle Button Which Allows You To Switch From Futures Risk To MT5 App Risk (More Features & Additions Will Arrive Soon). </span></div>
-    <div class="log-entry"><span class="log-ver prev">V2.6</span><span class="log-text">Strengthened the outline blur for the calculator card making it slightly more visible separate from the main background now (Next update will be a big feature update/UI refinements).</span></div>
+    <div class="log-entry"><span class="log-ver prev">V2.6</span><span class="log-text">Strengthened the outline blur for the calculator card making it slightly more visible separate from the main background now.</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.6</span><span class="log-text">Removed the 'Total Risk' label from where the risk result is shown keeping it as minimal as possible.</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.5</span><span class="log-text">Made the inputs & dropdown boxes more visible than before.</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.5</span><span class="log-text">Made this updates popup bigger in size.</span></div>
@@ -376,98 +488,168 @@ select option { background: #060f1e; color: var(--text); }
 </div>
 
 <script>
-/* ────────────────────────────────────────────────
-   CANVAS BACKGROUND  (wrapped in try/catch so a
-   canvas error can never silently kill the rest)
-──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   USERS
+═══════════════════════════════════════════════════════════ */
+var USERS = {
+  '123':   { password: 'admin', active: true },
+  'admin':   { password: '123', active: true },
+};
+
+/* ═══════════════════════════════════════════════════════════
+   SESSION CONFIG
+═══════════════════════════════════════════════════════════ */
+var SESSION_MINUTES = 5;
+var SESSION_MS      = SESSION_MINUTES * 60 * 1000;
+var SESSION_KEY     = 'the_risk_calculator_v3';
+
+function getDeviceId() {
+  var raw = [
+    navigator.userAgent || '',
+    navigator.language  || '',
+    (screen.width  || 0) + 'x' + (screen.height || 0),
+    screen.colorDepth   || 0,
+    (new Date()).getTimezoneOffset(),
+    navigator.hardwareConcurrency || 0,
+    navigator.platform  || ''
+  ].join('|||');
+  var h = 0x811c9dc5;
+  for (var i = 0; i < raw.length; i++) {
+    h ^= raw.charCodeAt(i);
+    h  = (h * 0x01000193) >>> 0;
+  }
+  return h.toString(16);
+}
+
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+  catch(e) { return null; }
+}
+function saveSession(username) {
+  var s = { u: username, d: getDeviceId(), exp: Date.now() + SESSION_MS };
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch(e) {}
+  return s;
+}
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+}
+function isSessionValid(s) {
+  if (!s) return false;
+  if (Date.now() > s.exp) return false;
+  if (!USERS[s.u] || !USERS[s.u].active) return false;
+  if (s.d !== getDeviceId()) return false;
+  return true;
+}
+
+function showLogin(msg) {
+  document.getElementById('app-page').classList.remove('active');
+  document.getElementById('login-page').classList.add('active');
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = msg || '';
+}
+function showApp(username, expiry) {
+  document.getElementById('login-page').classList.remove('active');
+  document.getElementById('app-page').classList.add('active');
+  document.getElementById('sessionUser').textContent = username.toUpperCase();
+  startSessionTimer(expiry);
+}
+
+var timerInterval = null;
+function startSessionTimer(expiry) {
+  clearInterval(timerInterval);
+  function tick() {
+    var remaining = expiry - Date.now();
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      clearSession();
+      showLogin('Session expired, Please log in again.');
+      return;
+    }
+    var h = Math.floor(remaining / 3600000);
+    var m = Math.floor((remaining % 3600000) / 60000);
+    var s = Math.floor((remaining % 60000) / 1000);
+    var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+    var el = document.getElementById('sessionTimer');
+    if (el) el.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+  }
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+function attemptLogin() {
+  var username = document.getElementById('loginUser').value.trim();
+  var password = document.getElementById('loginPass').value;
+  var errEl    = document.getElementById('loginError');
+  if (!username || !password) { errEl.textContent = 'All fields required.'; return; }
+  var user = USERS[username];
+  if (!user || !user.active || user.password !== password) {
+    errEl.textContent = 'Invalid credentials.';
+    document.getElementById('loginPass').value = '';
+    return;
+  }
+  errEl.textContent = '';
+  var session = saveSession(username);
+  showApp(username, session.exp);
+  populateInstrumentDropdown();
+  updateMode();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CANVAS BACKGROUND
+═══════════════════════════════════════════════════════════ */
 try {
   var bgCanvas = document.getElementById('bg-canvas');
   var bgCtx    = bgCanvas.getContext('2d');
   var bgW = 0, bgH = 0, bgT = 0, bgPts = [];
-
   function bgMkP() {
-    return {
-      x:  Math.random() * bgW,
-      y:  Math.random() * bgH,
-      s:  Math.random() * 1.4 + 0.3,
-      vy: -(Math.random() * 0.35 + 0.08),
-      vx: (Math.random() - 0.5) * 0.12,
-      op: Math.random() * 0.45 + 0.08,
-      wb: Math.random() * Math.PI * 2,
-      ws: Math.random() * 0.02 + 0.005
-    };
+    return { x:Math.random()*bgW, y:Math.random()*bgH, s:Math.random()*1.4+0.3,
+      vy:-(Math.random()*0.35+0.08), vx:(Math.random()-0.5)*0.12,
+      op:Math.random()*0.45+0.08, wb:Math.random()*Math.PI*2, ws:Math.random()*0.02+0.005 };
   }
-
   function bgResize() {
     bgW = bgCanvas.width  = window.innerWidth;
     bgH = bgCanvas.height = window.innerHeight;
     bgPts = [];
-    for (var i = 0; i < 55; i++) {
-      var p = bgMkP(); p.y = Math.random() * bgH; bgPts.push(p);
-    }
+    for (var i = 0; i < 55; i++) { var p = bgMkP(); p.y = Math.random()*bgH; bgPts.push(p); }
   }
-
   function bgFrame() {
-    bgCtx.fillStyle = '#030812';
-    bgCtx.fillRect(0, 0, bgW, bgH);
-
-    var G = 55;
+    bgCtx.fillStyle = '#030812'; bgCtx.fillRect(0,0,bgW,bgH);
     bgCtx.lineWidth = 0.5;
-    for (var x = 0; x < bgW; x += G) {
-      bgCtx.strokeStyle = 'rgba(0,212,255,' + (0.025 + 0.01 * Math.sin(bgT * 0.003 + x * 0.01)) + ')';
-      bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, bgH); bgCtx.stroke();
+    var G = 55;
+    for (var x = 0; x < bgW; x+=G) {
+      bgCtx.strokeStyle='rgba(0,212,255,'+(0.025+0.01*Math.sin(bgT*0.003+x*0.01))+')';
+      bgCtx.beginPath(); bgCtx.moveTo(x,0); bgCtx.lineTo(x,bgH); bgCtx.stroke();
     }
-    for (var y = 0; y < bgH; y += G) {
-      bgCtx.strokeStyle = 'rgba(0,212,255,' + (0.025 + 0.01 * Math.sin(bgT * 0.003 + y * 0.01)) + ')';
-      bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(bgW, y); bgCtx.stroke();
+    for (var y = 0; y < bgH; y+=G) {
+      bgCtx.strokeStyle='rgba(0,212,255,'+(0.025+0.01*Math.sin(bgT*0.003+y*0.01))+')';
+      bgCtx.beginPath(); bgCtx.moveTo(0,y); bgCtx.lineTo(bgW,y); bgCtx.stroke();
     }
-
-    var maxR = Math.sqrt(bgW * bgW + bgH * bgH) * 0.72;
+    var maxR = Math.sqrt(bgW*bgW+bgH*bgH)*0.72;
     for (var i = 0; i < 4; i++) {
-      var r = ((bgT * 0.6 + i * 180) % 720) / 720 * maxR;
-      bgCtx.beginPath(); bgCtx.arc(bgW / 2, bgH + 40, r, 0, Math.PI * 2);
-      bgCtx.strokeStyle = 'rgba(0,212,255,' + ((1 - r / maxR) * 0.07) + ')';
-      bgCtx.lineWidth = 0.8; bgCtx.stroke();
+      var r = ((bgT*0.6+i*180)%720)/720*maxR;
+      bgCtx.beginPath(); bgCtx.arc(bgW/2,bgH+40,r,0,Math.PI*2);
+      bgCtx.strokeStyle='rgba(0,212,255,'+((1-r/maxR)*0.07)+')';
+      bgCtx.lineWidth=0.8; bgCtx.stroke();
     }
-
     for (var j = 0; j < bgPts.length; j++) {
       var p = bgPts[j];
-      p.x += p.vx + Math.sin(p.wb) * 0.15;
-      p.y += p.vy; p.wb += p.ws;
-      if (p.y < -4) { bgPts[j] = bgMkP(); bgPts[j].y = bgH + 4; p = bgPts[j]; }
-      bgCtx.beginPath(); bgCtx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
-      bgCtx.fillStyle = 'rgba(0,212,255,' + p.op + ')'; bgCtx.fill();
+      p.x+=p.vx+Math.sin(p.wb)*0.15; p.y+=p.vy; p.wb+=p.ws;
+      if (p.y<-4) { bgPts[j]=bgMkP(); bgPts[j].y=bgH+4; p=bgPts[j]; }
+      bgCtx.beginPath(); bgCtx.arc(p.x,p.y,p.s,0,Math.PI*2);
+      bgCtx.fillStyle='rgba(0,212,255,'+p.op+')'; bgCtx.fill();
     }
-
-    var vg = bgCtx.createRadialGradient(bgW/2, bgH/2, bgH*0.35, bgW/2, bgH/2, bgH*0.85);
-    vg.addColorStop(0, 'transparent');
-    vg.addColorStop(1, 'rgba(1,3,10,0.55)');
-    bgCtx.fillStyle = vg; bgCtx.fillRect(0, 0, bgW, bgH);
-
-    bgT++;
-    requestAnimationFrame(bgFrame);
+    var vg=bgCtx.createRadialGradient(bgW/2,bgH/2,bgH*0.35,bgW/2,bgH/2,bgH*0.85);
+    vg.addColorStop(0,'transparent'); vg.addColorStop(1,'rgba(1,3,10,0.55)');
+    bgCtx.fillStyle=vg; bgCtx.fillRect(0,0,bgW,bgH);
+    bgT++; requestAnimationFrame(bgFrame);
   }
+  bgResize(); window.addEventListener('resize',bgResize); bgFrame();
+} catch(e) { console.warn('Canvas BG failed:',e); }
 
-  bgResize();
-  window.addEventListener('resize', bgResize);
-  bgFrame();
-} catch (e) {
-  console.warn('Canvas background failed:', e);
-}
-
-/* ────────────────────────────────────────────────
-   CLOCK
-──────────────────────────────────────────────── */
-function clockTick() {
-  var el = document.getElementById('clockEl');
-  if (el) el.textContent = new Date().toTimeString().slice(0, 8);
-}
-clockTick();
-setInterval(clockTick, 1000);
-
-/* ────────────────────────────────────────────────
-   CALCULATOR DATA  (unchanged from original)
-──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   CALCULATOR LOGIC
+═══════════════════════════════════════════════════════════ */
 var instruments = {
   NQ:   { label: "Nasdaq (NQM26)",        pointValue: 20   },
   MNQ:  { label: "Micro Nasdaq (MNQM26)", pointValue: 2    },
@@ -476,15 +658,17 @@ var instruments = {
   GOLD: { label: "Gold (GCJ26)",          pointValue: 10   },
   MGC:  { label: "Micro Gold (MGCJ26)",   pointValue: 1    }
 };
+
+/* ── MT5 instruments now include a defaultLots property ── */
 var cfdInstruments = {
-  NAS:  { label: "Nas (Nas100)",    pointValue: 1.0 },
-  US30: { label: "Dow Jones (Us30)", pointValue: 1.0 },
-  GOLD: { label: "Gold (XAUUSD)",   pointValue: 100.0 },
+  NAS:  { label: "Nas (Nas100)",     pointValue: 1.0,   defaultLots: 1   },
+  US30: { label: "Dow Jones (Us30)", pointValue: 1.0,   defaultLots: 1   },
+  GOLD: { label: "Gold (XAUUSD)",    pointValue: 100.0, defaultLots: 100 }
 };
+
 var currencyRateForGER = 0.85910;
 var isCfdMode = false;
 
-/* ── Populate dropdown ── */
 function populateInstrumentDropdown() {
   var sel  = document.getElementById('instrument');
   var list = isCfdMode ? cfdInstruments : instruments;
@@ -492,24 +676,62 @@ function populateInstrumentDropdown() {
   for (var key in list) {
     if (!list.hasOwnProperty(key)) continue;
     var opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = list[key].label;
-    sel.appendChild(opt);
+    opt.value = key; opt.textContent = list[key].label; sel.appendChild(opt);
   }
   sel.value = isCfdMode ? 'NAS' : 'NQ';
+  /* Set Lots Value default when switching to MT5 */
+  if (isCfdMode) updateLotsDefault();
 }
 
-/* ── Risk calculation ── */
+/* Update contracts input to reflect the selected MT5 instrument default lots */
+function updateLotsDefault() {
+  if (!isCfdMode) return;
+  var instrument = document.getElementById('instrument').value;
+  var info = cfdInstruments[instrument];
+  var contractsEl = document.getElementById('contracts');
+  if (info) {
+    contractsEl.value = info.defaultLots;
+  }
+  validateInputs();
+}
+
+/* ─── Invalid input validation ─── */
+function isInputInvalid(el) {
+  if (el.readOnly) return false;          // skip readonly fields
+  var val = el.value.trim();
+  if (val === '') return true;            // blank
+  var num = parseFloat(val);
+  if (isNaN(num)) return true;            // letters / non-numeric
+  if (num <= 0) return true;             // zero or negative
+  return false;
+}
+
+function validateInputs() {
+  var ids = ['contracts', 'stop'];
+  if (isCfdMode) ids.push('maxRisk');
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el || el.readOnly) return;
+    if (isInputInvalid(el)) {
+      el.classList.add('invalid');
+    } else {
+      el.classList.remove('invalid');
+    }
+  });
+}
+
 function calculateRisk() {
-  var instrument      = document.getElementById('instrument').value;
+  validateInputs();
+
+  var instrument       = document.getElementById('instrument').value;
   var contractsOrUnits = parseFloat(document.getElementById('contracts').value) || 0;
   var stop             = parseFloat(document.getElementById('stop').value)      || 0;
   var maxRiskVal       = parseFloat(document.getElementById('maxRisk').value)   || 0;
   var pointValue       = isCfdMode ? (cfdInstruments[instrument] ? cfdInstruments[instrument].pointValue : 1) : 1;
   var currencyRate     = (instrument === 'GER') ? currencyRateForGER : 1.0;
   var riskDisplay      = document.getElementById('riskDisplay');
-
   var risk = 0;
+
   if (isCfdMode) {
     risk = (stop > 0) ? maxRiskVal / (stop * pointValue * currencyRate) : 0;
   } else {
@@ -541,24 +763,18 @@ function calculateRisk() {
   riskDisplay.classList.add('pulse');
 }
 
-/* ── Mode switch ── */
 function updateMode() {
   var track = document.getElementById('neoTrack');
-  if (isCfdMode) track.classList.add('is-on');
-  else           track.classList.remove('is-on');
+  if (isCfdMode) track.classList.add('is-on'); else track.classList.remove('is-on');
   track.setAttribute('aria-checked', isCfdMode ? 'true' : 'false');
-
   document.getElementById('calculatorTitle').textContent =
     isCfdMode ? "MT5 Risk Calculator" : "Future's Risk Calculator";
-  document.getElementById('contracts-label').textContent =
-    isCfdMode ? "Lot's Value" : "Contracts";
+  document.getElementById('contracts-label').textContent = isCfdMode ? "Lot's Value" : "Contracts";
   document.getElementById('contracts').readOnly = isCfdMode;
   document.getElementById('maxRisk-group').style.display = isCfdMode ? 'block' : 'none';
-
   document.getElementById('lbl-fut').className = 'mode-lbl ' + (isCfdMode ? 'off' : 'on');
   document.getElementById('lbl-cfd').className = 'mode-lbl ' + (isCfdMode ? 'on'  : 'off');
   document.getElementById('modeChip').textContent = 'MODE: ' + (isCfdMode ? 'MT5' : 'FUTURES');
-
   populateInstrumentDropdown();
   calculateRisk();
 }
@@ -569,67 +785,72 @@ function toggleMode() {
   updateMode();
 }
 
-/* ────────────────────────────────────────────────
-   WIRE UP EVERYTHING
-   Script is at the bottom of <body> so the DOM
-   is fully ready — no event wrapper needed.
-──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   EVENT WIRING
+═══════════════════════════════════════════════════════════ */
+document.getElementById('loginBtn').addEventListener('click', attemptLogin);
+document.getElementById('loginPass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') attemptLogin();
+});
+document.getElementById('loginUser').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('loginPass').focus();
+});
 
-/* Initial state */
-populateInstrumentDropdown();
-updateMode();
+document.getElementById('signOutBtn').addEventListener('click', function() {
+  clearInterval(timerInterval);
+  clearSession();
+  showLogin('');
+});
 
-/* Toggle track */
 var neoTrack = document.getElementById('neoTrack');
 neoTrack.addEventListener('click', toggleMode);
 neoTrack.addEventListener('keydown', function(e) {
   if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleMode(); }
 });
-
-/* Mode labels also act as clickable shortcuts */
 document.getElementById('lbl-fut').addEventListener('click', function() { if (isCfdMode)  toggleMode(); });
 document.getElementById('lbl-cfd').addEventListener('click', function() { if (!isCfdMode) toggleMode(); });
 
-/* Inputs */
-document.getElementById('instrument').addEventListener('change', calculateRisk);
+/* Instrument change: update lots default on MT5 side */
+document.getElementById('instrument').addEventListener('change', function() {
+  if (isCfdMode) updateLotsDefault();
+  calculateRisk();
+});
 document.getElementById('contracts').addEventListener('input',  calculateRisk);
 document.getElementById('stop').addEventListener('input',       calculateRisk);
 document.getElementById('maxRisk').addEventListener('input',    calculateRisk);
 
-/* Popup */
-var overlay   = document.getElementById('overlay');
-var popup     = document.getElementById('popup');
-
+var overlay = document.getElementById('overlay');
+var popup   = document.getElementById('popup');
 document.getElementById('openPopup').addEventListener('click', function() {
-  overlay.classList.add('active');
-  popup.classList.add('show');
+  overlay.classList.add('active'); popup.classList.add('show');
 });
-
 function closePopup() {
-  overlay.classList.remove('active');
-  popup.classList.remove('show');
+  overlay.classList.remove('active'); popup.classList.remove('show');
 }
-
 document.getElementById('closePopup').addEventListener('click', closePopup);
 overlay.addEventListener('click', closePopup);
 
-  // Block right-click menu
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-  });
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey || e.metaKey) {
+    if (['s','u','p','a'].indexOf(e.key.toLowerCase()) !== -1) e.preventDefault();
+  }
+});
 
-  // Block specific keyboard shortcuts
-  document.addEventListener('keydown', function(e) {
-    // Check for Ctrl or Cmd key
-    if (e.ctrlKey || e.metaKey) {
-      // List of key codes to block
-      const blockedKeys = ['s', 'u', 'c', 'p', 'a', 'x'];
-      if (blockedKeys.includes(e.key.toLowerCase())) {
-        e.preventDefault();
-      }
-    }
-  });
-</script>
+/* ═══════════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════════ */
+(function boot() {
+  var session = loadSession();
+  if (isSessionValid(session)) {
+    populateInstrumentDropdown();
+    updateMode();
+    showApp(session.u, session.exp);
+  } else {
+    clearSession();
+    showLogin('');
+  }
+})();
 </script>
 </body>
 </html>
