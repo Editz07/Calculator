@@ -208,8 +208,15 @@ select option { background: #060f1e; color: var(--text); }
   box-shadow: 0 0 18px rgba(0,212,255,0.25);
 }
 #openPopup   { right: 20px; }
+
+/* ── Top-left button group (Info + Sign Out) ── */
+#topLeftBtns {
+  position: fixed; top: 18px; left: 20px; z-index: 100;
+  display: flex; align-items: center; gap: 10px;
+}
+#topLeftBtns .fixed-btn { position: static; }
+
 #signOutBtn  {
-  left: 20px;
   border-color: rgba(255,77,109,0.35);
   color: var(--red);
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
@@ -354,12 +361,85 @@ select option { background: #060f1e; color: var(--text); }
 .log-ver.cur  { color:#00ff9d; border-color:rgba(0,255,157,.35); background:rgba(0,255,157,.05); }
 .log-ver.prev { color:#b060f8; border-color:rgba(176,96,248,.35); background:rgba(176,96,248,.05); }
 .log-text { font-family:'Rajdhani',sans-serif; font-size:13px; line-height:1.55; color:#5a8aaa; }
+
+/* ── Page transition sweep ── */
+#transitionOverlay {
+  position: fixed; inset: 0; z-index: 6000; pointer-events: none;
+}
+.transition-sweep {
+  position: absolute; inset: 0;
+  background: #030812;
+  transform: scaleY(0);
+  transform-origin: top;
+}
+.transition-sweep::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px,
+    rgba(0,212,255,0.035) 3px, rgba(0,212,255,0.035) 4px);
+}
+.transition-sweep::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
+}
+.transition-sweep.sweep-in {
+  transform-origin: top;
+  animation: sweepIn 0.45s cubic-bezier(0.76,0,0.24,1) forwards;
+}
+.transition-sweep.sweep-out {
+  transform-origin: bottom;
+  animation: sweepOut 0.45s cubic-bezier(0.76,0,0.24,1) forwards;
+}
+@keyframes sweepIn  { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes sweepOut { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+
+/* ── Confirm / notice modal ── */
+.confirm-popup { width: 380px; text-align: center; }
+.confirm-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; line-height: 1.6; color: var(--text);
+  margin-bottom: 24px;
+}
+.confirm-actions { display: flex; gap: 12px; }
+.confirm-actions .login-btn { margin-top: 0; flex: 1; }
+.confirm-actions .confirm-no {
+  color: var(--muted); border-color: rgba(46,95,120,0.5); background: transparent;
+}
+.confirm-actions .confirm-no:hover {
+  background: rgba(255,255,255,0.03); box-shadow: none; border-color: rgba(46,95,120,0.9);
+}
+.confirm-actions .confirm-danger {
+  color: var(--red); border-color: rgba(255,77,109,0.4); background: rgba(255,77,109,0.05);
+}
+.confirm-actions .confirm-danger:hover {
+  background: rgba(255,77,109,0.15); box-shadow: 0 0 24px rgba(255,77,109,0.3);
+}
+
+/* ── Info / About popups ── */
+.info-popup { width: 420px; text-align: left; }
+.info-body {
+  font-family: 'Rajdhani', sans-serif; font-size: 14px; line-height: 1.7;
+  color: #5a8aaa; margin-bottom: 24px;
+}
+.info-body strong { color: var(--text); }
+.info-actions { display: flex; flex-direction: column; gap: 10px; }
+.info-actions .login-btn { margin-top: 0; text-align: center; }
+.discord-btn {
+  color: #b0a4ff; border-color: rgba(140,120,255,0.4); background: rgba(140,120,255,0.06);
+  text-decoration: none; display: block;
+}
+.discord-btn:hover {
+  background: rgba(140,120,255,0.15); box-shadow: 0 0 24px rgba(140,120,255,0.3);
+}
 </style>
 </head>
 <body>
 
 <canvas id="bg-canvas"></canvas>
 <div id="scanlines"></div>
+
+<!-- PAGE TRANSITION SWEEP -->
+<div id="transitionOverlay"><div class="transition-sweep" id="transitionSweep"></div></div>
 
 <!-- LOGIN PAGE -->
 <div id="login-page">
@@ -396,7 +476,10 @@ select option { background: #060f1e; color: var(--text); }
 
 <!-- APP PAGE -->
 <div id="app-page">
-  <button class="fixed-btn" id="signOutBtn">[ Sign Out ]</button>
+  <div id="topLeftBtns">
+    <button class="fixed-btn" id="infoBtn">[ Info ]</button>
+    <button class="fixed-btn" id="signOutBtn">[ Sign Out ]</button>
+  </div>
   <button class="fixed-btn" id="openPopup">[ Updates ]</button>
 
   <div class="page">
@@ -462,11 +545,14 @@ select option { background: #060f1e; color: var(--text); }
       <span>// System Updates</span>
       <button class="close-btn" id="closePopup">&#x2715;</button>
     </div>
-    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Inputs now show a red outline when a value is invalid, blank, or zero — giving a clear visual warning before calculating.</span></div>
-    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Fixed MT5 Gold instrument — Lot Size now correctly defaults to 100 (NAS and US30 remain at 1).</span></div>
-    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Changed The Time At The Bottom of The Calculator To A Countdown of The Session Timeout Before It Signs You Out Automatically With The Account Mode You Are Logged Into.</span></div>
-    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Changed The Version Text To A Working Sign out Button Top Left Corner of The Main Page.</span></div>
-    <div class="log-entry"><span class="log-ver cur">V3.1</span><span class="log-text">Added A New Working Login Page Feature (DM editztrades for more details).</span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.2</span><span class="log-text">Added a confirmation prompt before signing out, and a notice when your session times out automatically.</span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.2</span><span class="log-text">Added a smooth transition effect when logging in and signing out.</span></div>
+    <div class="log-entry"><span class="log-ver cur">V3.2</span><span class="log-text">Added a new Info button top left, with an About section and a link to the Discord server.</span></div>
+    <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Inputs now show a red outline when a value is invalid, blank, or zero — giving a clear visual warning before calculating.</span></div>
+    <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Fixed MT5 Gold instrument — Lot Size now correctly defaults to 100 (NAS and US30 remain at 1).</span></div>
+    <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Changed The Time At The Bottom of The Calculator To A Countdown of The Session Timeout Before It Signs You Out Automatically With The Account Mode You Are Logged Into.</span></div>
+    <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Changed The Version Text To A Working Sign out Button Top Left Corner of The Main Page.</span></div>
+    <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Added A New Working Login Page Feature (DM editztrades for more details).</span></div>
     <div class="log-entry"><span class="log-ver prev">V3.0</span><span class="log-text">Redefined The UI look of the website Giving It A Smooth, Futuristic Cyberpunk Design (More Features To Arrive).</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.9</span><span class="log-text">Added A Reset Button, To Reset Values To Their Defaults (Next Update Is Big). </span></div>
     <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Added A Red Outline To The Input Boxes To Warn You of An Invalid Input.</span></div>
@@ -484,6 +570,47 @@ select option { background: #060f1e; color: var(--text); }
     <div class="log-entry"><span class="log-ver prev">V2.2</span><span class="log-text">Added this brand new updates section.</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.2</span><span class="log-text">Removed website version off main title and added it here.</span></div>
     <div class="log-entry"><span class="log-ver prev">V2.1</span><span class="log-text">Changed instrument names for Q2.</span></div>
+  </div>
+
+  <!-- INFO POPUP -->
+  <div class="overlay" id="infoOverlay"></div>
+  <div class="popup info-popup" id="infoPopup">
+    <div class="popup-header">
+      <span>// Info</span>
+      <button class="close-btn" id="closeInfoPopup">&#x2715;</button>
+    </div>
+    <div class="info-body">
+      <strong>The Risk Calculator</strong> is a free tool built for the <strong>FN Trading</strong> community, helping traders size positions and manage risk across Futures and MT5 accounts.
+    </div>
+    <div class="info-actions">
+      <button class="login-btn" id="aboutBtn">[ About This Calculator ]</button>
+      <a class="login-btn discord-btn" id="discordBtn" href="https://discord.gg/fntrading" target="_blank" rel="noopener noreferrer">[ Join The Discord ]</a>
+    </div>
+  </div>
+
+  <!-- ABOUT POPUP -->
+  <div class="overlay" id="aboutOverlay"></div>
+  <div class="popup info-popup" id="aboutPopup">
+    <div class="popup-header">
+      <span>// About This Calculator</span>
+      <button class="close-btn" id="closeAboutPopup">&#x2715;</button>
+    </div>
+    <div class="info-body">
+      This tool calculates your <strong>dollar risk</strong> on Futures contracts, or the <strong>lot size</strong> required on MT5, based on your stop loss distance and risk tolerance. Use the switch above the instrument selector to toggle between <strong>Futures</strong> and <strong>MT5</strong> modes. A red outline on an input means it's blank, invalid, or zero. Built and maintained by <strong>editztrades</strong>.
+    </div>
+  </div>
+
+  <!-- CONFIRM / NOTICE MODAL -->
+  <div class="overlay" id="confirmOverlay"></div>
+  <div class="popup confirm-popup" id="confirmPopup">
+    <div class="popup-header">
+      <span id="confirmTitle">// Confirm</span>
+    </div>
+    <div class="confirm-text" id="confirmText">Are you sure?</div>
+    <div class="confirm-actions">
+      <button class="login-btn confirm-danger" id="confirmYesBtn">[ Confirm ]</button>
+      <button class="login-btn confirm-no" id="confirmNoBtn">[ Cancel ]</button>
+    </div>
   </div>
 </div>
 
@@ -556,14 +683,28 @@ function showApp(username, expiry) {
 }
 
 var timerInterval = null;
+var sessionExpiredHandled = false;
 function startSessionTimer(expiry) {
   clearInterval(timerInterval);
+  sessionExpiredHandled = false;
   function tick() {
     var remaining = expiry - Date.now();
     if (remaining <= 0) {
       clearInterval(timerInterval);
+      if (sessionExpiredHandled) return;
+      sessionExpiredHandled = true;
       clearSession();
-      showLogin('Session expired, Please log in again.');
+      openConfirm({
+        title: '// Session Expired',
+        text: 'Your session has timed out for security. Please log in again.',
+        yesLabel: '[ OK ]',
+        singleButton: true,
+        onConfirm: function() {
+          pageTransition(function() {
+            showLogin('Session expired, Please log in again.');
+          });
+        }
+      });
       return;
     }
     var h = Math.floor(remaining / 3600000);
@@ -590,9 +731,68 @@ function attemptLogin() {
   }
   errEl.textContent = '';
   var session = saveSession(username);
-  showApp(username, session.exp);
-  populateInstrumentDropdown();
-  updateMode();
+  pageTransition(function() {
+    showApp(username, session.exp);
+    populateInstrumentDropdown();
+    updateMode();
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE TRANSITION (login / sign out)
+═══════════════════════════════════════════════════════════ */
+function pageTransition(swapFn) {
+  var overlayEl = document.getElementById('transitionOverlay');
+  var sweep     = document.getElementById('transitionSweep');
+  overlayEl.style.pointerEvents = 'auto';
+  sweep.className = 'transition-sweep sweep-in';
+  setTimeout(function() {
+    if (typeof swapFn === 'function') swapFn();
+    sweep.className = 'transition-sweep sweep-out';
+    setTimeout(function() {
+      overlayEl.style.pointerEvents = 'none';
+      sweep.className = 'transition-sweep';
+    }, 450);
+  }, 450);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GENERIC CONFIRM / NOTICE MODAL
+═══════════════════════════════════════════════════════════ */
+var confirmOverlayEl = document.getElementById('confirmOverlay');
+var confirmPopupEl   = document.getElementById('confirmPopup');
+var confirmYesBtn    = document.getElementById('confirmYesBtn');
+var confirmNoBtn     = document.getElementById('confirmNoBtn');
+
+function openConfirm(opts) {
+  opts = opts || {};
+  document.getElementById('confirmTitle').textContent = opts.title || '// Confirm';
+  document.getElementById('confirmText').textContent  = opts.text  || 'Are you sure?';
+  confirmYesBtn.textContent = opts.yesLabel || '[ Confirm ]';
+  confirmYesBtn.className = 'login-btn ' + (opts.danger === false ? '' : 'confirm-danger');
+
+  if (opts.singleButton) {
+    confirmNoBtn.style.display = 'none';
+  } else {
+    confirmNoBtn.style.display = '';
+    confirmNoBtn.textContent = opts.noLabel || '[ Cancel ]';
+  }
+
+  confirmYesBtn.onclick = function() {
+    closeConfirm();
+    if (opts.onConfirm) opts.onConfirm();
+  };
+  confirmNoBtn.onclick = function() {
+    closeConfirm();
+    if (opts.onCancel) opts.onCancel();
+  };
+
+  confirmOverlayEl.classList.add('active');
+  confirmPopupEl.classList.add('show');
+}
+function closeConfirm() {
+  confirmOverlayEl.classList.remove('active');
+  confirmPopupEl.classList.remove('show');
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -797,9 +997,19 @@ document.getElementById('loginUser').addEventListener('keydown', function(e) {
 });
 
 document.getElementById('signOutBtn').addEventListener('click', function() {
-  clearInterval(timerInterval);
-  clearSession();
-  showLogin('');
+  openConfirm({
+    title: '// Confirm Sign Out',
+    text: 'Are you sure you want to sign out?',
+    yesLabel: '[ Sign Out ]',
+    noLabel: '[ Cancel ]',
+    onConfirm: function() {
+      clearInterval(timerInterval);
+      clearSession();
+      pageTransition(function() {
+        showLogin('');
+      });
+    }
+  });
 });
 
 var neoTrack = document.getElementById('neoTrack');
@@ -829,6 +1039,30 @@ function closePopup() {
 }
 document.getElementById('closePopup').addEventListener('click', closePopup);
 overlay.addEventListener('click', closePopup);
+
+/* ── Info popup ── */
+var infoOverlay = document.getElementById('infoOverlay');
+var infoPopupEl = document.getElementById('infoPopup');
+document.getElementById('infoBtn').addEventListener('click', function() {
+  infoOverlay.classList.add('active'); infoPopupEl.classList.add('show');
+});
+function closeInfo() {
+  infoOverlay.classList.remove('active'); infoPopupEl.classList.remove('show');
+}
+document.getElementById('closeInfoPopup').addEventListener('click', closeInfo);
+infoOverlay.addEventListener('click', closeInfo);
+
+/* ── About popup (opened from Info popup) ── */
+var aboutOverlay = document.getElementById('aboutOverlay');
+var aboutPopupEl = document.getElementById('aboutPopup');
+document.getElementById('aboutBtn').addEventListener('click', function() {
+  aboutOverlay.classList.add('active'); aboutPopupEl.classList.add('show');
+});
+function closeAbout() {
+  aboutOverlay.classList.remove('active'); aboutPopupEl.classList.remove('show');
+}
+document.getElementById('closeAboutPopup').addEventListener('click', closeAbout);
+aboutOverlay.addEventListener('click', closeAbout);
 
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 document.addEventListener('keydown', function(e) {
