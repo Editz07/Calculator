@@ -517,6 +517,99 @@ input[type="number"]::-webkit-outer-spin-button {
 .log-ver.prev { color:#b060f8; border-color:rgba(176,96,248,.35); background:rgba(176,96,248,.05); }
 .log-text { font-family:'Rajdhani',sans-serif; font-size:13px; line-height:1.55; color:#5a8aaa; }
 
+/* ── Updates Grid (v3.3) ── */
+.updates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+  perspective: 1000px;
+}
+.ver-tile {
+  position: relative;
+  aspect-ratio: 1 / 0.72;
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 1.5px;
+  color: #7fb8d4;
+  cursor: none;
+  transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  overflow: hidden;
+}
+.ver-tile::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,255,0.08), transparent 60%);
+  opacity: 0; transition: opacity 0.22s ease;
+}
+.ver-tile:hover {
+  transform: translateY(-3px) scale(1.04);
+  border-color: rgba(0,212,255,0.5);
+  background: rgba(0,212,255,0.09);
+  box-shadow: 0 6px 18px rgba(0,212,255,0.12);
+}
+.ver-tile:hover::before { opacity: 1; }
+.ver-tile:active { transform: translateY(-1px) scale(1.0); }
+.ver-tile.cur { color:#00ff9d; border-color: rgba(0,255,157,.3); background: rgba(0,255,157,.04); }
+.ver-tile.cur:hover { border-color: rgba(0,255,157,.6); background: rgba(0,255,157,.09); box-shadow: 0 6px 18px rgba(0,255,157,0.15); }
+.ver-tile.prev { color:#b060f8; border-color: rgba(176,96,248,.28); background: rgba(176,96,248,.04); }
+.ver-tile.prev:hover { border-color: rgba(176,96,248,.55); background: rgba(176,96,248,.09); box-shadow: 0 6px 18px rgba(176,96,248,0.15); }
+.ver-tile .ver-count {
+  position: absolute; top: 4px; right: 5px;
+  font-size: 8px; letter-spacing: 0.5px; opacity: 0.55;
+}
+
+/* ── Version detail popup (3D parallax) ── */
+.overlay.detail-overlay { z-index: 2100; backdrop-filter: blur(14px); }
+.ver-detail-popup {
+  position: fixed; top: 50%; left: 50%; z-index: 2101;
+  width: 460px; max-width: 90%; max-height: 70vh;
+  background: rgba(3,10,24,0.98);
+  border: 1px solid rgba(0,212,255,0.3);
+  padding: 30px 30px 24px;
+  opacity: 0; pointer-events: none;
+  transform: translate(-50%,-50%) scale(0.85) rotateX(0deg) rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: transform 0.42s cubic-bezier(0.19,1,0.22,1), opacity 0.32s ease;
+  overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: rgba(0,212,255,0.2) transparent;
+}
+.ver-detail-popup.show { opacity: 1; pointer-events: auto; }
+.ver-detail-popup::-webkit-scrollbar { width: 4px; }
+.ver-detail-popup::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
+.ver-detail-inner {
+  transform: translateZ(0px);
+  transition: transform 0.1s linear;
+}
+.ver-detail-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0,212,255,0.12);
+  transform: translateZ(38px);
+}
+.ver-detail-header .ver-detail-title {
+  font-family: 'Orbitron', monospace; font-weight: 900;
+  font-size: 16px; letter-spacing: 3px;
+}
+.ver-detail-header .ver-detail-title.cur  { color: #00ff9d; }
+.ver-detail-header .ver-detail-title.prev { color: #b060f8; }
+.ver-detail-body { transform: translateZ(20px); }
+.ver-detail-body .log-entry { margin-bottom: 16px; }
+.ver-detail-body .log-entry:last-child { margin-bottom: 0; }
+.ver-detail-footer {
+  margin-top: 22px; padding-top: 16px;
+  border-top: 1px solid rgba(0,212,255,0.12);
+  display: flex; justify-content: center;
+  transform: translateZ(30px);
+}
+.ver-detail-close-btn {
+  background: transparent; border: 1px solid rgba(0,212,255,0.35); color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace; letter-spacing: 2px; font-size: 11px;
+  padding: 9px 26px; cursor: none; transition: all 0.2s;
+}
+.ver-detail-close-btn:hover { background: rgba(0,212,255,0.1); box-shadow: 0 0 14px rgba(0,212,255,0.3); }
+
 /* ── Page transition sweep ── */
 #transitionOverlay {
   position: fixed; inset: 0; z-index: 6000; pointer-events: none;
@@ -948,35 +1041,22 @@ input[type="number"]::-webkit-outer-spin-button {
     <span>// System Updates</span>
     <button class="close-btn" id="closePopup">&#x2715;</button>
   </div>
-  <div class="log-entry"><span class="log-ver cur">V3.2.5</span><span class="log-text">Added Updates, Portal & Info Button to the login page.</span></div>
-  <div class="log-entry"><span class="log-ver cur">V3.2.5</span><span class="log-text">Made Some UI Additions & Changes including better instrument dropdown, better arrow buttons to match the theme and a new cursor design.</span></div>
-  <div class="log-entry"><span class="log-ver cur">V3.2.5</span><span class="log-text">Added a brand new risk preset feature allowing for quick one click preset results be shown on the calculator.</span></div>
-  <div class="log-entry"><span class="log-ver cur">V3.2.5</span><span class="log-text">Increased the automatic session timeout from 5 minutes to 10 minutes.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.2</span><span class="log-text">Added a confirmation prompt before signing out, and a notice when your session times out automatically.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.2</span><span class="log-text">Added a smooth transition effect when logging in and signing out.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.2</span><span class="log-text">Added a new Info button top left, with an About section and a link to the Discord server.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Inputs now show a red outline when a value is invalid, blank, or zero — giving a clear visual warning before calculating.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Fixed MT5 Gold instrument — Lot Size now correctly defaults to 100 (NAS and US30 remain at 1).</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Changed The Time At The Bottom of The Calculator To A Countdown of The Session Timeout Before It Signs You Out Automatically With The Account Mode You Are Logged Into.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Changed The Version Text To A Working Sign out Button Top Left Corner of The Main Page.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.1</span><span class="log-text">Added A New Working Login Page Feature (DM editztrades for more details).</span></div>
-  <div class="log-entry"><span class="log-ver prev">V3.0</span><span class="log-text">Redefined The UI look of the website Giving It A Smooth, Futuristic Cyberpunk Design (More Features To Arrive).</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.9</span><span class="log-text">Added A Reset Button, To Reset Values To Their Defaults (Next Update Is Big). </span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Added A Red Outline To The Input Boxes To Warn You of An Invalid Input.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Added A Tooltips To Each Input To Help In Understanding What To Input.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.8</span><span class="log-text">Removed The Lot Size Input From The MT5 Side (Behind The Scenes Code Functioning). </span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.7</span><span class="log-text">Added A Brand New Toggle Button Which Allows You To Switch From Futures Risk To MT5 App Risk (More Features & Additions Will Arrive Soon). </span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.6</span><span class="log-text">Strengthened the outline blur for the calculator card making it slightly more visible separate from the main background now.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.6</span><span class="log-text">Removed the 'Total Risk' label from where the risk result is shown keeping it as minimal as possible.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.5</span><span class="log-text">Made the inputs & dropdown boxes more visible than before.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.5</span><span class="log-text">Made this updates popup bigger in size.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.5</span><span class="log-text">Changed the instrument names in their brackets again to match Q2 of 2026.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.4</span><span class="log-text">Completely removed the navigation bar & page 2 from the website.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.3</span><span class="log-text">Added a PNL calendar section (now removed).</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.3</span><span class="log-text">Removed the mouse parallax effect on the risk calculator (now static).</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.2</span><span class="log-text">Added this brand new updates section.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.2</span><span class="log-text">Removed website version off main title and added it here.</span></div>
-  <div class="log-entry"><span class="log-ver prev">V2.1</span><span class="log-text">Changed instrument names for Q2.</span></div>
+  <div class="updates-grid" id="updatesGrid"></div>
+</div>
+
+<!-- VERSION DETAIL POPUP (3D parallax) -->
+<div class="overlay detail-overlay" id="verDetailOverlay"></div>
+<div class="ver-detail-popup" id="verDetailPopup">
+  <div class="ver-detail-inner" id="verDetailInner">
+    <div class="ver-detail-header">
+      <span class="ver-detail-title" id="verDetailTitle">V0.0</span>
+      <button class="close-btn" id="closeVerDetail">&#x2715;</button>
+    </div>
+    <div class="ver-detail-body" id="verDetailBody"></div>
+    <div class="ver-detail-footer">
+      <button class="ver-detail-close-btn" id="verDetailCloseBottom">[ Close ]</button>
+    </div>
+  </div>
 </div>
 
 <!-- INFO POPUP -->
@@ -1816,6 +1896,123 @@ document.getElementById('openPopup').addEventListener('click', openUpdatesPopup)
 document.getElementById('openPopupLogin').addEventListener('click', openUpdatesPopup);
 document.getElementById('closePopup').addEventListener('click', closePopup);
 overlay.addEventListener('click', closePopup);
+
+/* ── Updates data (grouped by version) ── */
+var updatesData = [
+  { ver: 'V3.3', status: 'cur', notes: [
+      'Redesigned the updates section making it easier to read and understand changes made.',
+      'Made small changes to the overall UI.',
+      'Fixed some small bugs and details.'
+  ]},
+  { ver: 'V3.2.5', status: 'prev', notes: [
+      'Added Updates, Portal & Info Button to the login page.',
+      'Added a brand new risk preset feature allowing for quick one click preset results be shown on the calculator.',
+      'Increased the automatic session timeout from 5 minutes to 10 minutes.'
+  ]},
+  { ver: 'V3.2', status: 'prev', notes: [
+      'Added a confirmation prompt before signing out, and a notice when your session times out automatically.',
+      'Added a smooth transition effect when logging in and signing out.',
+      'Added a new Info button top left, with an About section and a link to the Discord server.'
+  ]},
+  { ver: 'V3.1', status: 'prev', notes: [
+      'Inputs now show a red outline when a value is invalid, blank, or zero — giving a clear visual warning before calculating.',
+      'Fixed MT5 Gold instrument — Lot Size now correctly defaults to 100 (NAS and US30 remain at 1).',
+      'Changed The Time At The Bottom of The Calculator To A Countdown of The Session Timeout Before It Signs You Out Automatically With The Account Mode You Are Logged Into.',
+      'Changed The Version Text To A Working Sign out Button Top Left Corner of The Main Page.',
+      'Added A New Working Login Page Feature (DM editztrades for more details).'
+  ]},
+  { ver: 'V3.0', status: 'prev', notes: [
+      'Redefined The UI look of the website Giving It A Smooth, Futuristic Cyberpunk Design (More Features To Arrive).'
+  ]},
+  { ver: 'V2.9', status: 'prev', notes: [
+      'Added A Reset Button, To Reset Values To Their Defaults (Next Update Is Big).'
+  ]},
+  { ver: 'V2.8', status: 'prev', notes: [
+      'Added A Red Outline To The Input Boxes To Warn You of An Invalid Input.',
+      'Added A Tooltips To Each Input To Help In Understanding What To Input.',
+      'Removed The Lot Size Input From The MT5 Side (Behind The Scenes Code Functioning).'
+  ]},
+  { ver: 'V2.7', status: 'prev', notes: [
+      'Added A Brand New Toggle Button Which Allows You To Switch From Futures Risk To MT5 App Risk (More Features & Additions Will Arrive Soon).'
+  ]},
+  { ver: 'V2.6', status: 'prev', notes: [
+      'Strengthened the outline blur for the calculator card making it slightly more visible separate from the main background now.',
+      "Removed the 'Total Risk' label from where the risk result is shown keeping it as minimal as possible."
+  ]},
+  { ver: 'V2.5', status: 'prev', notes: [
+      'Made the inputs & dropdown boxes more visible than before.',
+      'Made this updates popup bigger in size.',
+      'Changed the instrument names in their brackets again to match Q2 of 2026.'
+  ]},
+  { ver: 'V2.4', status: 'prev', notes: [
+      'Completely removed the navigation bar & page 2 from the website.'
+  ]},
+  { ver: 'V2.3', status: 'prev', notes: [
+      'Added a PNL calendar section (now removed).',
+      'Removed the mouse parallax effect on the risk calculator (now static).'
+  ]},
+  { ver: 'V2.2', status: 'prev', notes: [
+      'Added this brand new updates section.',
+      'Removed website version off main title and added it here.'
+  ]},
+  { ver: 'V2.1', status: 'prev', notes: [
+      'Changed instrument names for Q2.'
+  ]}
+];
+
+/* ── Build the version tile grid ── */
+var updatesGrid = document.getElementById('updatesGrid');
+updatesData.forEach(function(entry, idx) {
+  var tile = document.createElement('div');
+  tile.className = 'ver-tile ' + entry.status;
+  tile.tabIndex = 0;
+  tile.innerHTML = '<span class="ver-count">' + entry.notes.length + '</span>' + entry.ver;
+  tile.addEventListener('click', function() { openVerDetail(idx); });
+  tile.addEventListener('keydown', function(e) {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); openVerDetail(idx); }
+  });
+  updatesGrid.appendChild(tile);
+});
+
+/* ── Version detail popup (3D parallax) ── */
+var verDetailOverlay = document.getElementById('verDetailOverlay');
+var verDetailPopup   = document.getElementById('verDetailPopup');
+var verDetailInner   = document.getElementById('verDetailInner');
+var verDetailTitle   = document.getElementById('verDetailTitle');
+var verDetailBody    = document.getElementById('verDetailBody');
+
+function openVerDetail(idx) {
+  var entry = updatesData[idx];
+  verDetailTitle.textContent = entry.ver;
+  verDetailTitle.className = 'ver-detail-title ' + entry.status;
+  verDetailBody.innerHTML = entry.notes.map(function(note) {
+    return '<div class="log-entry"><span class="log-ver ' + entry.status + '">' + entry.ver + '</span><span class="log-text">' + note + '</span></div>';
+  }).join('');
+  verDetailOverlay.classList.add('active');
+  verDetailPopup.classList.add('show');
+  document.addEventListener('mousemove', verDetailParallax);
+}
+function closeVerDetail() {
+  verDetailOverlay.classList.remove('active');
+  verDetailPopup.classList.remove('show');
+  verDetailInner.style.transform = 'translateZ(0px) rotateX(0deg) rotateY(0deg)';
+  document.removeEventListener('mousemove', verDetailParallax);
+}
+function verDetailParallax(e) {
+  var rect = verDetailPopup.getBoundingClientRect();
+  var cx = rect.left + rect.width / 2;
+  var cy = rect.top + rect.height / 2;
+  var dx = (e.clientX - cx) / (rect.width / 2);
+  var dy = (e.clientY - cy) / (rect.height / 2);
+  dx = Math.max(-1, Math.min(1, dx));
+  dy = Math.max(-1, Math.min(1, dy));
+  var rotY = dx * 8;
+  var rotX = -dy * 8;
+  verDetailPopup.style.transform = 'translate(-50%,-50%) scale(1) rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg)';
+}
+document.getElementById('closeVerDetail').addEventListener('click', closeVerDetail);
+document.getElementById('verDetailCloseBottom').addEventListener('click', closeVerDetail);
+verDetailOverlay.addEventListener('click', closeVerDetail);
 
 /* Info popup */
 var infoOverlay = document.getElementById('infoOverlay');
