@@ -77,13 +77,13 @@ a, button, select, .neo-track, .mode-lbl, .close-btn, input, textarea {
   border: 1px solid var(--border);
   backdrop-filter: blur(24px);
   box-shadow: 0 0 0 1px rgba(var(--cyan-rgb),0.08),
-              0 0 40px rgba(var(--cyan-rgb),0.08),
-              0 0 80px rgba(var(--cyan-rgb),0.04);
+              0 0 24px rgba(var(--cyan-rgb),0.06),
+              0 0 48px rgba(var(--cyan-rgb),0.03);
   animation: cardGlow 5s ease-in-out infinite;
 }
 @keyframes cardGlow {
-  0%,100% { box-shadow: 0 0 0 1px rgba(var(--cyan-rgb),0.08), 0 0 40px rgba(var(--cyan-rgb),0.08), 0 0 80px rgba(var(--cyan-rgb),0.04); }
-  50%     { box-shadow: 0 0 0 1px rgba(var(--cyan-rgb),0.25), 0 0 60px rgba(var(--cyan-rgb),0.18), 0 0 120px rgba(0,255,157,0.06); }
+  0%,100% { box-shadow: 0 0 0 1px rgba(var(--cyan-rgb),0.08), 0 0 24px rgba(var(--cyan-rgb),0.06), 0 0 48px rgba(var(--cyan-rgb),0.03); }
+  50%     { box-shadow: 0 0 0 1px rgba(var(--cyan-rgb),0.2), 0 0 34px rgba(var(--cyan-rgb),0.12), 0 0 60px rgba(0,255,157,0.04); }
 }
 
 /* Corner accents */
@@ -165,6 +165,14 @@ input[readonly] { opacity: 0.35; cursor: none; }
 input[type="password"] { letter-spacing: 4px; }
 select { cursor: none; }
 select option { background: #060f1e; color: var(--text); }
+
+/* ── Login success glow (fires briefly after successful auth) ── */
+input.login-success {
+  border-bottom-color: var(--green) !important;
+  background: rgba(0,255,157,0.06) !important;
+  box-shadow: 0 1px 0 0 var(--green), 0 0 22px rgba(0,255,157,0.35) !important;
+  transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+}
 
 /* ── Hide native number spinner arrows completely ── */
 input[type="number"] {
@@ -271,6 +279,9 @@ input[type="number"]::-webkit-outer-spin-button {
   scrollbar-color: rgba(var(--cyan-rgb),0.4) transparent;
   z-index: 50;
   display: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.34,1.4,0.64,1);
 }
 .dd-menu::-webkit-scrollbar { width: 6px; }
 .dd-menu::-webkit-scrollbar-track { background: transparent; }
@@ -279,6 +290,7 @@ input[type="number"]::-webkit-outer-spin-button {
   border-radius: 3px;
 }
 .custom-dd.open .dd-menu { display: block; }
+.custom-dd.open .dd-menu.dd-in { opacity: 1; transform: translateY(0); }
 .dd-option {
   padding: 9px 10px;
   font-family: 'Share Tech Mono', monospace;
@@ -311,7 +323,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .login-btn:hover {
   background: rgba(var(--cyan-rgb),0.15);
-  box-shadow: 0 0 24px rgba(var(--cyan-rgb),0.3), inset 0 0 24px rgba(var(--cyan-rgb),0.05);
+  box-shadow: 0 0 14px rgba(var(--cyan-rgb),0.25), inset 0 0 14px rgba(var(--cyan-rgb),0.04);
 }
 .login-btn:active { transform: scale(0.98); }
 
@@ -349,12 +361,14 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
   padding: 7px 16px; cursor: none;
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
-  transition: all 0.25s;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
 }
 .fixed-btn:hover {
   background: rgba(var(--cyan-rgb),0.08);
-  box-shadow: 0 0 18px rgba(var(--cyan-rgb),0.25);
+  box-shadow: 0 0 10px rgba(var(--cyan-rgb),0.18);
+  transform: translateY(-2px) scale(1.03);
 }
+.fixed-btn:active { transform: translateY(0) scale(0.97); }
 #openPopup   { right: 20px; }
 
 /* ── Top-left button group (Info + Sign Out) ── */
@@ -379,7 +393,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 #signOutBtn:hover {
   background: rgba(255,77,109,0.08);
-  box-shadow: 0 0 18px rgba(255,77,109,0.25);
+  box-shadow: 0 0 10px rgba(255,77,109,0.18);
   border-color: rgba(255,77,109,0.7);
 }
 
@@ -389,6 +403,7 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 15px; letter-spacing: 3px; text-align: center;
   color: var(--text); text-transform: uppercase; margin-bottom: 6px;
   pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .mode-row {
@@ -401,7 +416,7 @@ input[type="number"]::-webkit-outer-spin-button {
   transition: color 0.3s, text-shadow 0.3s;
   cursor: none; user-select: none;
 }
-.mode-lbl.on  { color: var(--cyan); text-shadow: 0 0 12px rgba(var(--cyan-rgb),0.6); }
+.mode-lbl.on  { color: var(--cyan); text-shadow: 0 0 8px rgba(var(--cyan-rgb),0.5); }
 .mode-lbl.off { color: var(--muted); }
 
 #moveDirection { display: none; }
@@ -413,13 +428,13 @@ input[type="number"]::-webkit-outer-spin-button {
   border-radius: 12px; position: relative;
   cursor: none; transition: border-color 0.3s, box-shadow 0.3s;
 }
-.neo-track:hover { border-color: rgba(var(--cyan-rgb),0.7); box-shadow: 0 0 12px rgba(var(--cyan-rgb),0.2); }
+.neo-track:hover { border-color: rgba(var(--cyan-rgb),0.7); box-shadow: 0 0 8px rgba(var(--cyan-rgb),0.15); }
 .neo-thumb {
   position: absolute; top: 3px; left: 3px;
   width: 16px; height: 16px; border-radius: 50%;
   background: var(--cyan);
-  box-shadow: 0 0 10px rgba(var(--cyan-rgb),0.9), 0 0 20px rgba(var(--cyan-rgb),0.4);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 6px rgba(var(--cyan-rgb),0.7), 0 0 12px rgba(var(--cyan-rgb),0.3);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
   pointer-events: none;
 }
 .neo-track.is-on .neo-thumb { transform: translateX(24px); }
@@ -452,7 +467,7 @@ input[type="number"]::-webkit-outer-spin-button {
 #riskDisplay {
   font-family: 'Orbitron', monospace; font-weight: 900; font-size: 30px;
   color: var(--cyan);
-  text-shadow: 0 0 20px rgba(var(--cyan-rgb),.7), 0 0 50px rgba(var(--cyan-rgb),.3);
+  text-shadow: 0 0 12px rgba(var(--cyan-rgb),.55), 0 0 28px rgba(var(--cyan-rgb),.2);
   transition: color 0.5s, text-shadow 0.5s;
   letter-spacing: 1px; position: relative; z-index: 1;
 }
@@ -476,23 +491,23 @@ input[type="number"]::-webkit-outer-spin-button {
 .overlay {
   position: fixed; inset: 0; z-index: 2000;
   background: rgba(1,5,14,0.8); backdrop-filter: blur(10px);
-  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
 
 .popup {
   position: fixed; top: 50%; left: 50%; z-index: 2001;
-  transform: translate(-50%,-50%) scale(0.92);
+  transform: translate(-50%,-50%) scale(0.86) translateY(18px);
   background: rgba(3,10,24,0.98);
   border: 1px solid rgba(var(--cyan-rgb),0.25);
   width: 680px; max-width: 92%; max-height: 78vh; overflow-y: auto;
   padding: 28px; opacity: 0; pointer-events: none;
-  transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s;
+  transition: transform 0.5s cubic-bezier(0.19,1.2,0.3,1), opacity 0.35s ease;
   scrollbar-width: thin; scrollbar-color: rgba(var(--cyan-rgb),0.2) transparent;
 }
 .popup::-webkit-scrollbar { width: 4px; }
 .popup::-webkit-scrollbar-thumb { background: rgba(var(--cyan-rgb),0.2); border-radius: 2px; }
-.popup.show { transform: translate(-50%,-50%) scale(1); opacity: 1; pointer-events: auto; }
+.popup.show { transform: translate(-50%,-50%) scale(1) translateY(0); opacity: 1; pointer-events: auto; }
 .popup-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 20px; padding-bottom: 14px;
@@ -508,7 +523,7 @@ input[type="number"]::-webkit-outer-spin-button {
   display: flex; align-items: center; justify-content: center;
   font-family: 'Share Tech Mono', monospace; transition: all 0.2s;
 }
-.close-btn:hover { background: rgba(var(--cyan-rgb),0.1); box-shadow: 0 0 12px rgba(var(--cyan-rgb),0.3); }
+.close-btn:hover { background: rgba(var(--cyan-rgb),0.1); box-shadow: 0 0 8px rgba(var(--cyan-rgb),0.2); transform: rotate(90deg); }
 .log-entry { display:flex; gap:14px; margin-bottom:14px; align-items:flex-start; }
 .log-ver {
   flex-shrink:0; font-family:'Share Tech Mono',monospace;
@@ -548,14 +563,14 @@ input[type="number"]::-webkit-outer-spin-button {
   transform: translateY(-3px) scale(1.04);
   border-color: rgba(var(--cyan-rgb),0.5);
   background: rgba(var(--cyan-rgb),0.09);
-  box-shadow: 0 6px 18px rgba(var(--cyan-rgb),0.12);
+  box-shadow: 0 4px 10px rgba(var(--cyan-rgb),0.08);
 }
 .ver-tile:hover::before { opacity: 1; }
 .ver-tile:active { transform: translateY(-1px) scale(1.0); }
 .ver-tile.cur { color:#00ff9d; border-color: rgba(0,255,157,.3); background: rgba(0,255,157,.04); }
-.ver-tile.cur:hover { border-color: rgba(0,255,157,.6); background: rgba(0,255,157,.09); box-shadow: 0 6px 18px rgba(0,255,157,0.15); }
+.ver-tile.cur:hover { border-color: rgba(0,255,157,.6); background: rgba(0,255,157,.09); box-shadow: 0 4px 10px rgba(0,255,157,0.1); }
 .ver-tile.prev { color:#b060f8; border-color: rgba(176,96,248,.28); background: rgba(176,96,248,.04); }
-.ver-tile.prev:hover { border-color: rgba(176,96,248,.55); background: rgba(176,96,248,.09); box-shadow: 0 6px 18px rgba(176,96,248,0.15); }
+.ver-tile.prev:hover { border-color: rgba(176,96,248,.55); background: rgba(176,96,248,.09); box-shadow: 0 4px 10px rgba(176,96,248,0.1); }
 .ver-tile .ver-count {
   position: absolute; top: 4px; right: 5px;
   font-size: 8px; letter-spacing: 0.5px; opacity: 0.55;
@@ -609,7 +624,7 @@ input[type="number"]::-webkit-outer-spin-button {
   font-family: 'Share Tech Mono', monospace; letter-spacing: 2px; font-size: 11px;
   padding: 9px 26px; cursor: none; transition: all 0.2s;
 }
-.ver-detail-close-btn:hover { background: rgba(var(--cyan-rgb),0.1); box-shadow: 0 0 14px rgba(var(--cyan-rgb),0.3); }
+.ver-detail-close-btn:hover { background: rgba(var(--cyan-rgb),0.1); box-shadow: 0 0 8px rgba(var(--cyan-rgb),0.2); }
 
 /* ── Page transition sweep ── */
 #transitionOverlay {
@@ -629,7 +644,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .transition-sweep::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
   background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-  box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
+  box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan);
 }
 .transition-sweep.sweep-in {
   transform-origin: top;
@@ -641,6 +656,99 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 @keyframes sweepIn  { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes sweepOut { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+
+/* ══════════════════════════════════════════════════════════
+   JARVIS-STYLE CINEMATIC LOADER (login / sign out)
+══════════════════════════════════════════════════════════ */
+#jarvisLoader {
+  position: fixed; inset: 0; z-index: 9500;
+  background: #010306;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.7s ease;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+#jarvisLoader.show { opacity: 1; pointer-events: auto; }
+#jarvisLoader.fade-out { opacity: 0; }
+#jarvisCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.jarvis-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  transform: scale(0.92);
+  opacity: 0;
+  transition: opacity 0.6s ease 0.15s, transform 0.6s cubic-bezier(0.19,1,0.22,1) 0.15s;
+}
+#jarvisLoader.show .jarvis-content { opacity: 1; transform: scale(1); }
+.jarvis-text {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: 15px; letter-spacing: 10px; text-transform: uppercase;
+  color: var(--cyan);
+  text-shadow: 0 0 10px rgba(var(--cyan-rgb),0.6), 0 0 24px rgba(var(--cyan-rgb),0.25);
+}
+.jarvis-text::after {
+  content: attr(data-dots);
+  display: inline-block; width: 24px; text-align: left;
+}
+.jarvis-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--muted);
+}
+.jarvis-bar-track {
+  width: 220px; height: 2px;
+  background: rgba(var(--cyan-rgb),0.12);
+  position: relative; overflow: hidden;
+}
+.jarvis-bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+  background: linear-gradient(90deg, rgba(var(--cyan-rgb),0.3), var(--cyan));
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+/* ══════════════════════════════════════════════════════════
+   COLOR THEME PIXEL-LINE WIPE TRANSITION
+   A narrow vertical strip made of small pixel blocks glides
+   left -> right. The theme swaps instantly underneath (hidden
+   because the strip only ever covers a thin band of the
+   screen, never the whole viewport), so there's no full-page
+   color flash — you just see a pixelated neon line sweep past.
+══════════════════════════════════════════════════════════ */
+#colorWave {
+  position: fixed;
+  top: 0; bottom: 0;
+  left: 0;
+  width: 26px;
+  z-index: 5500;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+  transform: translateX(-60px);
+  will-change: transform;
+}
+#colorWave .pw-pixel {
+  flex: 1 1 auto;
+  min-height: 6px;
+  border-radius: 1px;
+}
+/* The actual "reveal" — a solid old-theme-colored curtain that
+   sits over the not-yet-swept part of the page and recolors it
+   toward the old theme via mix-blend-mode, WITHOUT hiding any
+   content underneath (shapes/text stay visible, just tinted).
+   Its clip-path is animated left -> right in lockstep with the
+   pixel line, so as the line passes a region, the curtain there
+   disappears and the real (already-switched) new theme shows
+   through — exactly like an automatic before/after slider. */
+#themeCurtain {
+  position: fixed; inset: 0;
+  z-index: 5480;
+  pointer-events: none;
+  mix-blend-mode: color;
+  clip-path: inset(0 0 0 100%);
+  will-change: clip-path;
+}
+.theme-swatch.disabled { pointer-events: none; opacity: 0.3; filter: grayscale(0.6); }
 
 /* ── Confirm / notice modal ── */
 .confirm-popup { width: 380px; text-align: center; }
@@ -661,7 +769,7 @@ input[type="number"]::-webkit-outer-spin-button {
   color: var(--red); border-color: rgba(255,77,109,0.4); background: rgba(255,77,109,0.05);
 }
 .confirm-actions .confirm-danger:hover {
-  background: rgba(255,77,109,0.15); box-shadow: 0 0 24px rgba(255,77,109,0.3);
+  background: rgba(255,77,109,0.15); box-shadow: 0 0 12px rgba(255,77,109,0.2);
 }
 
 /* ── Portal button ── */
@@ -678,7 +786,7 @@ input[type="number"]::-webkit-outer-spin-button {
   color: var(--muted); user-select: none;
   transition: color 0.3s, text-shadow 0.3s;
 }
-.presets-toggle-label.on { color: var(--cyan); text-shadow: 0 0 12px rgba(var(--cyan-rgb),0.6); }
+.presets-toggle-label.on { color: var(--cyan); text-shadow: 0 0 8px rgba(var(--cyan-rgb),0.5); }
 
 /* ── Presets side panel ── */
 .presets-panel {
@@ -690,7 +798,7 @@ input[type="number"]::-webkit-outer-spin-button {
   max-height: 100%;
   background: rgba(3,10,24,0.98);
   border: 1px solid var(--border);
-  box-shadow: 0 0 0 1px rgba(var(--cyan-rgb),0.06), 0 0 40px rgba(var(--cyan-rgb),0.1);
+  box-shadow: 0 0 0 1px rgba(var(--cyan-rgb),0.06), 0 0 24px rgba(var(--cyan-rgb),0.07);
   padding: 20px 18px;
   opacity: 0;
   transform: translateX(-18px);
@@ -729,7 +837,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .preset-edit-btn:hover {
   background: rgba(var(--cyan-rgb),0.1);
-  box-shadow: 0 0 10px rgba(var(--cyan-rgb),0.25);
+  box-shadow: 0 0 6px rgba(var(--cyan-rgb),0.18);
 }
 .preset-edit-btn.editing {
   color: var(--green);
@@ -756,7 +864,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .preset-select-btn:hover {
   background: rgba(var(--cyan-rgb),0.1);
-  box-shadow: 0 0 12px rgba(var(--cyan-rgb),0.2);
+  box-shadow: 0 0 8px rgba(var(--cyan-rgb),0.15);
   border-color: rgba(var(--cyan-rgb),0.6);
 }
 .preset-del-btn {
@@ -773,7 +881,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .preset-del-btn.visible { display: flex; }
 .preset-del-btn:hover {
   background: rgba(255,77,109,0.1);
-  box-shadow: 0 0 10px rgba(255,77,109,0.25);
+  box-shadow: 0 0 6px rgba(255,77,109,0.18);
 }
 .preset-empty {
   font-family: 'Share Tech Mono', monospace;
@@ -832,7 +940,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .preset-save-btn:hover {
   background: rgba(var(--cyan-rgb),0.16);
-  box-shadow: 0 0 16px rgba(var(--cyan-rgb),0.25);
+  box-shadow: 0 0 10px rgba(var(--cyan-rgb),0.18);
 }
 .preset-note {
   font-family: 'Share Tech Mono', monospace;
@@ -862,9 +970,11 @@ input[type="number"]::-webkit-outer-spin-button {
 .discord-btn {
   color: #b0a4ff; border-color: rgba(140,120,255,0.4); background: rgba(140,120,255,0.06);
   text-decoration: none; display: block;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, background 0.25s ease;
 }
 .discord-btn:hover {
-  background: rgba(140,120,255,0.15); box-shadow: 0 0 24px rgba(140,120,255,0.3);
+  background: rgba(140,120,255,0.15); box-shadow: 0 0 14px rgba(140,120,255,0.2);
+  transform: translateY(-2px) scale(1.015);
 }
 
 /* ── Customization button, sits next to Info ── */
@@ -885,7 +995,7 @@ input[type="number"]::-webkit-outer-spin-button {
   padding: 10px 14px;
   background: rgba(3,10,24,0.97);
   border: 1px solid rgba(var(--cyan-rgb),0.35);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 24px rgba(var(--cyan-rgb),0.12);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4), 0 0 14px rgba(var(--cyan-rgb),0.08);
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
   opacity: 0;
   transform: translateY(-8px) scaleX(0.92);
@@ -905,13 +1015,23 @@ input[type="number"]::-webkit-outer-spin-button {
   cursor: none;
   border: 2px solid transparent;
   padding: 0;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.2s ease;
 }
 .theme-swatch:hover { transform: scale(1.15); }
 .theme-swatch.selected {
   border-color: #fff;
-  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+  box-shadow: 0 0 6px rgba(255,255,255,0.35);
   transform: scale(1.1);
+}
+
+/* ── Mode-switch card transition (MT5 <-> Futures) ── */
+.card {
+  transition: transform 0.4s cubic-bezier(0.5,0,0.2,1), opacity 0.4s ease, filter 0.4s ease;
+}
+.card.mode-switching {
+  transform: perspective(900px) rotateY(6deg) scale(0.965);
+  opacity: 0.35;
+  filter: blur(3px) saturate(1.4);
 }
 </style>
 </head>
@@ -925,13 +1045,27 @@ input[type="number"]::-webkit-outer-spin-button {
 <!-- PAGE TRANSITION SWEEP -->
 <div id="transitionOverlay"><div class="transition-sweep" id="transitionSweep"></div></div>
 
+<!-- JARVIS CINEMATIC LOADER -->
+<div id="jarvisLoader">
+  <canvas id="jarvisCanvas"></canvas>
+  <div class="jarvis-content">
+    <div class="jarvis-text" id="jarvisText" data-dots="">LOADING</div>
+    <div class="jarvis-bar-track"><div class="jarvis-bar-fill" id="jarvisBarFill"></div></div>
+    <div class="jarvis-sub" id="jarvisSub">INITIALIZING SESSION</div>
+  </div>
+</div>
+
+<!-- COLOR THEME PIXEL-LINE WIPE -->
+<div id="themeCurtain"></div>
+<div id="colorWave"></div>
+
 <!-- LOGIN PAGE -->
 <div id="login-page">
   <div id="loginTopLeftBtns">
     <button class="fixed-btn" id="infoBtnLogin">[ Info ]</button>
     <button class="fixed-btn settings-btn-fixed" id="settingsBtnLogin" title="Customization" aria-label="Customization">[ Customization ]</button>
   </div>
-  <a class="fixed-btn portal-btn" id="portalBtnLogin" href="https://editz07.github.io/Portal/" target="_blank" rel="noopener noreferrer">[ Portal ]</a>
+  <button class="fixed-btn portal-btn" id="portalBtnLogin" data-href="https://editz07.github.io/Portal/" style="right:20px;">[ Portal ]</button>
   <button class="fixed-btn" id="openPopupLogin" style="right:150px;">[ Updates ]</button>
   <div class="page">
     <div class="card">
@@ -967,7 +1101,7 @@ input[type="number"]::-webkit-outer-spin-button {
 <!-- APP PAGE -->
 <div id="app-page">
   <div id="topLeftBtns">
-    <a class="fixed-btn portal-btn" id="portalBtn" href="http://editz07.github.io/Portal" target="_blank" rel="noopener noreferrer">[ Portal ]</a>
+    <button class="fixed-btn portal-btn" id="portalBtn" data-href="http://editz07.github.io/Portal">[ Portal ]</button>
     <button class="fixed-btn" id="infoBtn">[ Info ]</button>
     <button class="fixed-btn settings-btn-fixed" id="settingsBtn" title="Customization" aria-label="Customization">[ Customization ]</button>
     <button class="fixed-btn" id="signOutBtn">[ Sign Out ]</button>
@@ -1241,9 +1375,9 @@ function startSessionTimer(expiry) {
         yesLabel: '[ OK ]',
         singleButton: true,
         onConfirm: function() {
-          pageTransition(function() {
+          jarvisSequence(function() {
             showLogin('Session expired, Please log in again.');
-          });
+          }, { sub: 'TERMINATING SESSION', text: 'LOGGING OUT' });
         }
       });
       return;
@@ -1263,6 +1397,8 @@ function attemptLogin() {
   var username = document.getElementById('loginUser').value.trim();
   var password = document.getElementById('loginPass').value;
   var errEl    = document.getElementById('loginError');
+  var userEl   = document.getElementById('loginUser');
+  var passEl   = document.getElementById('loginPass');
   if (!username || !password) { errEl.textContent = 'All fields required.'; return; }
   var user = USERS[username];
   if (!user || !user.active || user.password !== password) {
@@ -1271,16 +1407,190 @@ function attemptLogin() {
     return;
   }
   errEl.textContent = '';
+
+  /* Login inputs glow green briefly to confirm success before the
+     cinematic loader takes over. */
+  userEl.classList.add('login-success');
+  passEl.classList.add('login-success');
+
   var session = saveSession(username);
-  pageTransition(function() {
-    showApp(username, session.exp);
-    populateInstrumentDropdown();
-    updateMode();
-  });
+  setTimeout(function() {
+    jarvisSequence(function() {
+      showApp(username, session.exp);
+      populateInstrumentDropdown();
+      updateMode();
+    }, { sub: 'INITIALIZING SESSION', text: 'LOADING' });
+    userEl.classList.remove('login-success');
+    passEl.classList.remove('login-success');
+  }, 380);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   PAGE TRANSITION (login / sign out)
+   JARVIS-STYLE CINEMATIC LOADER
+   Used for the login -> app transition and for signing out.
+   Draws rotating HUD rings + radar sweep + particle bursts on
+   a canvas behind an animated "LOADING" readout with a
+   progress bar, then hands off to the page swap underneath.
+═══════════════════════════════════════════════════════════ */
+var jarvisRAF = null;
+var jarvisT = 0;
+
+function jarvisDrawFrame() {
+  var canvas = document.getElementById('jarvisCanvas');
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width  = canvas.clientWidth;
+  var h = canvas.height = canvas.clientHeight;
+  var cx = w / 2, cy = h / 2;
+  var rgb = (typeof getAccentRgb === 'function') ? getAccentRgb() : '0,212,255';
+
+  ctx.clearRect(0, 0, w, h);
+
+  /* faint radial backdrop glow */
+  var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.55);
+  grd.addColorStop(0, 'rgba(' + rgb + ',0.10)');
+  grd.addColorStop(1, 'rgba(1,3,6,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, w, h);
+
+  var baseR = Math.min(w, h) * 0.16;
+
+  /* rotating dashed rings, each spinning at its own rate/direction */
+  var rings = [
+    { r: baseR,        speed: 0.012,  dash: [2, 10], width: 1.4, alpha: 0.55 },
+    { r: baseR * 1.35, speed: -0.008, dash: [14, 8], width: 1.1, alpha: 0.4 },
+    { r: baseR * 1.7,  speed: 0.005,  dash: [1, 4],  width: 1,   alpha: 0.3 },
+    { r: baseR * 2.1,  speed: -0.003, dash: [30, 14],width: 1,   alpha: 0.22 }
+  ];
+  rings.forEach(function(ring, i) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(jarvisT * ring.speed + i);
+    ctx.beginPath();
+    ctx.setLineDash(ring.dash);
+    ctx.arc(0, 0, ring.r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(' + rgb + ',' + ring.alpha + ')';
+    ctx.lineWidth = ring.width;
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  /* radar sweep wedge */
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(jarvisT * 0.02);
+  var sweepGrad = ctx.createLinearGradient(0, 0, baseR * 2.1, 0);
+  sweepGrad.addColorStop(0, 'rgba(' + rgb + ',0.28)');
+  sweepGrad.addColorStop(1, 'rgba(' + rgb + ',0)');
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.arc(0, 0, baseR * 2.1, -0.32, 0.02);
+  ctx.closePath();
+  ctx.fillStyle = sweepGrad;
+  ctx.fill();
+  ctx.restore();
+
+  /* tick marks around outer ring */
+  ctx.save();
+  ctx.translate(cx, cy);
+  for (var t = 0; t < 48; t++) {
+    var ang = (t / 48) * Math.PI * 2 + jarvisT * 0.012;
+    var big = t % 4 === 0;
+    var r1 = baseR * 2.28;
+    var r2 = r1 + (big ? 10 : 5);
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(ang) * r1, Math.sin(ang) * r1);
+    ctx.lineTo(Math.cos(ang) * r2, Math.sin(ang) * r2);
+    ctx.strokeStyle = 'rgba(' + rgb + ',' + (big ? 0.45 : 0.2) + ')';
+    ctx.lineWidth = big ? 1.4 : 0.8;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  /* core pulsing hub */
+  var pulse = 1 + Math.sin(jarvisT * 0.05) * 0.12;
+  ctx.beginPath();
+  ctx.arc(cx, cy, baseR * 0.14 * pulse, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(' + rgb + ',0.85)';
+  ctx.shadowColor = 'rgba(' + rgb + ',0.9)';
+  ctx.shadowBlur = 10;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  jarvisT++;
+  jarvisRAF = requestAnimationFrame(jarvisDrawFrame);
+}
+
+function startJarvisAnim() { if (!jarvisRAF) jarvisDrawFrame(); }
+function stopJarvisAnim() { if (jarvisRAF) { cancelAnimationFrame(jarvisRAF); jarvisRAF = null; } }
+
+var jarvisDotsInterval = null;
+function startJarvisDots() {
+  var el = document.getElementById('jarvisText');
+  var n = 0;
+  clearInterval(jarvisDotsInterval);
+  jarvisDotsInterval = setInterval(function() {
+    n = (n + 1) % 4;
+    el.setAttribute('data-dots', '.'.repeat(n));
+  }, 400);
+}
+function stopJarvisDots() {
+  clearInterval(jarvisDotsInterval);
+  var el = document.getElementById('jarvisText');
+  if (el) el.setAttribute('data-dots', '');
+}
+
+/**
+ * jarvisSequence(swapFn, opts)
+ * Cinematic full-screen "booting"/"terminating" loader shown on
+ * both login and sign-out. swapFn runs while the loader is at
+ * full opacity (so the page swap is invisible to the user), then
+ * the loader holds for a good stretch before fading away.
+ */
+function jarvisSequence(swapFn, opts) {
+  opts = opts || {};
+  var overlayEl = document.getElementById('jarvisLoader');
+  var textEl    = document.getElementById('jarvisText');
+  var subEl     = document.getElementById('jarvisSub');
+  var barEl     = document.getElementById('jarvisBarFill');
+
+  textEl.textContent = opts.text || 'LOADING';
+  subEl.textContent   = opts.sub  || 'INITIALIZING SESSION';
+  barEl.style.transition = 'none';
+  barEl.style.width = '0%';
+
+  overlayEl.classList.remove('fade-out');
+  overlayEl.classList.add('show');
+  overlayEl.style.pointerEvents = 'auto';
+  startJarvisAnim();
+  startJarvisDots();
+
+  /* kick the progress bar off on the next frame so the transition applies */
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      barEl.style.transition = 'width 2.5s cubic-bezier(0.22,0.8,0.3,1)';
+      barEl.style.width = '100%';
+    });
+  });
+
+  /* swap the underlying page while fully covered by the loader */
+  setTimeout(function() {
+    if (typeof swapFn === 'function') swapFn();
+  }, 500);
+
+  /* hold the cinematic sequence for a good amount of time, then fade out */
+  setTimeout(function() {
+    overlayEl.classList.add('fade-out');
+    stopJarvisDots();
+    setTimeout(function() {
+      overlayEl.classList.remove('show', 'fade-out');
+      overlayEl.style.pointerEvents = 'none';
+      stopJarvisAnim();
+    }, 700);
+  }, 2700);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE TRANSITION (kept for lightweight/internal swaps)
 ═══════════════════════════════════════════════════════════ */
 function pageTransition(swapFn) {
   var overlayEl = document.getElementById('transitionOverlay');
@@ -1364,6 +1674,7 @@ function saveThemeKey(key) {
 }
 
 var currentThemeKey = loadThemeKey();
+var themeTransitioning = false;
 
 function getAccentHex() { return THEMES[currentThemeKey].hex; }
 function getAccentRgb() { return THEMES[currentThemeKey].rgb; }
@@ -1376,11 +1687,11 @@ function renderThemeSwatches() {
     var t = THEMES[key];
     var sw = document.createElement('button');
     sw.type = 'button';
-    sw.className = 'theme-swatch' + (key === currentThemeKey ? ' selected' : '');
+    sw.className = 'theme-swatch' + (key === currentThemeKey ? ' selected' : '') + (themeTransitioning ? ' disabled' : '');
     sw.style.background = t.hex;
-    sw.style.boxShadow = '0 0 12px ' + t.hex + '99';
+    sw.style.boxShadow = '0 0 6px ' + t.hex + '66';
     sw.title = t.label;
-    sw.addEventListener('click', function(e) { e.stopPropagation(); applyTheme(key); });
+    sw.addEventListener('click', function(e) { e.stopPropagation(); triggerThemeWave(key); });
     wrap.appendChild(sw);
   });
 }
@@ -1389,12 +1700,97 @@ function applyTheme(key) {
   if (!THEMES[key]) key = 'cyan';
   currentThemeKey = key;
   saveThemeKey(key);
-  /* Live-updates the whole site: accent hex (icons/text-shadows/etc)
-     plus the shared rgb triplet every card/border/glow reads from. */
+  /* Live-updates the whole site: accent hex (icons/text-shadows/
+     borders/outlines/etc) plus the shared rgb triplet every card/
+     border/glow reads from. The base page background is left
+     alone on purpose — only the neon outlines/accents change. */
   document.documentElement.style.setProperty('--cyan', THEMES[key].hex);
   document.documentElement.style.setProperty('--cyan-rgb', THEMES[key].rgb);
   renderThemeSwatches();
 }
+
+/**
+ * triggerThemeWave(newKey)
+ * A straight, pixelated neon line sweeps left -> right over 8
+ * seconds. The real theme switches instantly underneath, but a
+ * solid "curtain" in the OLD theme's color sits on top with
+ * mix-blend-mode: color — it recolors whatever's beneath it
+ * toward the old look without hiding any shapes or text. The
+ * curtain's clip-path is animated in lockstep with the line, so
+ * as the line crosses a region, the curtain peels back there and
+ * the real new-themed page shows through — a genuine automatic
+ * before/after wipe, not a timed color fade.
+ */
+function triggerThemeWave(newKey) {
+  if (themeTransitioning || !THEMES[newKey] || newKey === currentThemeKey) return;
+  themeTransitioning = true;
+
+  var wave    = document.getElementById('colorWave');
+  var curtain = document.getElementById('themeCurtain');
+  var oldHex  = THEMES[currentThemeKey].hex;
+  var newHex  = THEMES[newKey].hex;
+  var newRgb  = THEMES[newKey].rgb;
+
+  /* Build the straight pixel column (uniform position, just
+     per-pixel brightness variance for a pixelated neon look) */
+  wave.innerHTML = '';
+  var pixelCount = 30;
+  for (var i = 0; i < pixelCount; i++) {
+    var px = document.createElement('div');
+    px.className = 'pw-pixel';
+    var flicker = 0.55 + Math.random() * 0.55;
+    px.style.background = newHex;
+    px.style.opacity = Math.min(1, flicker).toFixed(2);
+    px.style.boxShadow = '0 0 ' + (3 + Math.random() * 5).toFixed(0) + 'px rgba(' + newRgb + ',' + (0.35 + Math.random() * 0.35).toFixed(2) + ')';
+    wave.appendChild(px);
+  }
+
+  /* switch the real theme instantly — the curtain (currently
+     covering the full screen in the OLD color) hides the jump */
+  applyTheme(newKey);
+
+  curtain.style.background = oldHex;
+  curtain.style.clipPath = 'inset(0 0 0 0%)'; /* fully covering */
+  renderThemeSwatches(); /* re-render with .disabled applied */
+
+  var DURATION = 5000;
+  var LINE_W = 26;
+  var startX = -LINE_W;
+  var endX = window.innerWidth + LINE_W;
+  var t0 = null;
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function frame(now) {
+    if (t0 === null) t0 = now;
+    var linear = Math.min(1, (now - t0) / DURATION);
+    var progress = easeInOutCubic(linear);
+
+    var x = lerp(startX, endX, progress);
+    wave.style.transform = 'translateX(' + x + 'px)';
+
+    /* The curtain's edge tracks the CENTER of the pixel line in
+       real pixels (not a loosely-matched percentage), so the
+       reveal boundary sits exactly behind the line — like the
+       line is painting the new color as it passes. */
+    var edgePx = x + LINE_W / 2;
+    curtain.style.clipPath = 'inset(0 0 0 ' + edgePx.toFixed(1) + 'px)';
+
+    if (linear < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      wave.innerHTML = '';
+      wave.style.transform = 'translateX(' + startX + 'px)';
+      curtain.style.clipPath = 'inset(0 0 0 ' + endX.toFixed(1) + 'px)';
+      themeTransitioning = false;
+      renderThemeSwatches();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+function lerp(a, b, t) { return a + (b - a) * t; }
 
 /* apply saved theme immediately, before anything else renders */
 applyTheme(currentThemeKey);
@@ -1531,7 +1927,7 @@ try {
         curCtx.strokeStyle = 'rgba('+accentRgb+',0.9)';
         curCtx.lineWidth = 2;
         curCtx.shadowColor = 'rgba('+accentRgb+',0.9)';
-        curCtx.shadowBlur = 16;
+        curCtx.shadowBlur = 8;
         curCtx.stroke();
         curCtx.shadowBlur = 0;
 
@@ -1627,21 +2023,34 @@ function syncCustomDropdown() {
 }
 
 function closeCustomDropdown() {
+  var menu = document.getElementById('instrument-menu');
+  menu.classList.remove('dd-in');
   document.getElementById('instrument-dd').classList.remove('open');
 }
 
 (function() {
   var dd      = document.getElementById('instrument-dd');
   var trigger = document.getElementById('instrument-trigger');
+  var menu    = document.getElementById('instrument-menu');
+
+  function openDD() {
+    dd.classList.add('open');
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() { menu.classList.add('dd-in'); });
+    });
+  }
+  function toggleDD() {
+    if (dd.classList.contains('open')) closeCustomDropdown(); else openDD();
+  }
 
   trigger.addEventListener('click', function(e) {
     e.stopPropagation();
-    dd.classList.toggle('open');
+    toggleDD();
   });
   trigger.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      dd.classList.toggle('open');
+      toggleDD();
     } else if (e.key === 'Escape') {
       closeCustomDropdown();
     }
@@ -1718,17 +2127,17 @@ function calculateRisk() {
   if (!isCfdMode) {
     if (risk > 2000) {
       riskDisplay.style.color      = '#ff4d6d';
-      riskDisplay.style.textShadow = '0 0 20px rgba(255,77,109,.7),0 0 50px rgba(255,77,109,.3)';
+      riskDisplay.style.textShadow = '0 0 12px rgba(255,77,109,.55),0 0 28px rgba(255,77,109,.2)';
     } else if (risk > 1000) {
       riskDisplay.style.color      = '#ffaa00';
-      riskDisplay.style.textShadow = '0 0 20px rgba(255,170,0,.7),0 0 50px rgba(255,170,0,.3)';
+      riskDisplay.style.textShadow = '0 0 12px rgba(255,170,0,.55),0 0 28px rgba(255,170,0,.2)';
     } else {
       riskDisplay.style.color      = 'var(--cyan)';
-      riskDisplay.style.textShadow = '0 0 20px rgba(' + getAccentRgb() + ',.7),0 0 50px rgba(' + getAccentRgb() + ',.3)';
+      riskDisplay.style.textShadow = '0 0 12px rgba(' + getAccentRgb() + ',.55),0 0 28px rgba(' + getAccentRgb() + ',.2)';
     }
   } else {
     riskDisplay.style.color      = 'var(--cyan)';
-    riskDisplay.style.textShadow = '0 0 20px rgba(' + getAccentRgb() + ',.7),0 0 50px rgba(' + getAccentRgb() + ',.3)';
+    riskDisplay.style.textShadow = '0 0 12px rgba(' + getAccentRgb() + ',.55),0 0 28px rgba(' + getAccentRgb() + ',.2)';
   }
 
   riskDisplay.classList.remove('pulse');
@@ -1759,10 +2168,28 @@ function updateMode() {
   calculateRisk();
 }
 
+/**
+ * toggleMode()
+ * Switching between Futures and MT5 now plays a short "glitch/flip"
+ * transition on the calculator card: it dips out (blur + tilt +
+ * fade), the fields swap underneath while hidden, then it settles
+ * back in with the new mode already active.
+ */
 function toggleMode() {
-  isCfdMode = !isCfdMode;
-  document.getElementById('moveDirection').checked = isCfdMode;
-  updateMode();
+  var card = document.getElementById('parallaxCard');
+  if (card.classList.contains('mode-switching')) return;
+
+  card.classList.add('mode-switching');
+
+  setTimeout(function() {
+    isCfdMode = !isCfdMode;
+    document.getElementById('moveDirection').checked = isCfdMode;
+    updateMode();
+
+    requestAnimationFrame(function() {
+      card.classList.remove('mode-switching');
+    });
+  }, 230);
 }
 
 /* ─── Reset button: restores default values for the current mode ─── */
@@ -1983,10 +2410,11 @@ function togglePresetsPanel() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   THEME / COLOR SETTINGS (locally stored) — popup wiring
-   NOTE: THEMES / applyTheme / getAccentHex / getAccentRgb are
-   defined earlier (above the canvas background code) so the
-   background + cursor animations can use them from frame one.
+   THEME / COLOR SETTINGS — popup wiring
+   NOTE: THEMES / applyTheme / getAccentHex / getAccentRgb /
+   triggerThemeWave are defined earlier (above the canvas
+   background code) so the background + cursor animations can
+   use them from frame one.
 ═══════════════════════════════════════════════════════════ */
 
 /* Settings bar open/close — floats near the gear button, no overlay,
@@ -2035,6 +2463,29 @@ window.addEventListener('resize', function() {
 });
 
 /* ═══════════════════════════════════════════════════════════
+   PORTAL LINK — confirm before leaving the site
+═══════════════════════════════════════════════════════════ */
+function wirePortalButton(id) {
+  var btn = document.getElementById(id);
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    var href = btn.getAttribute('data-href');
+    openConfirm({
+      title: '// Leaving Site',
+      text: "You're about to leave for the Portal on a different site. Continue?",
+      yesLabel: '[ Continue ]',
+      noLabel: '[ Stay Here ]',
+      danger: false,
+      onConfirm: function() {
+        window.open(href, '_blank', 'noopener,noreferrer');
+      }
+    });
+  });
+}
+wirePortalButton('portalBtn');
+wirePortalButton('portalBtnLogin');
+
+/* ═══════════════════════════════════════════════════════════
    EVENT WIRING
 ═══════════════════════════════════════════════════════════ */
 document.getElementById('loginBtn').addEventListener('click', attemptLogin);
@@ -2054,9 +2505,9 @@ document.getElementById('signOutBtn').addEventListener('click', function() {
     onConfirm: function() {
       clearInterval(timerInterval);
       clearSession();
-      pageTransition(function() {
+      jarvisSequence(function() {
         showLogin('');
-      });
+      }, { sub: 'TERMINATING SESSION', text: 'LOGGING OUT' });
     }
   });
 });
@@ -2129,7 +2580,18 @@ overlay.addEventListener('click', closePopup);
 
 /* ── Updates data (grouped by version) ── */
 var updatesData = [
-  { ver: 'V3.4', status: 'cur', notes: [
+  { ver: 'V3.5', status: 'cur', notes: [
+      'Rebuilt the color theme transition: it now sweeps as a thin pixelated neon line in the new color, left to right, instead of briefly washing the whole screen in a solid color.',
+      'Toned down the glow/bloom on cards, popups, buttons and the loader across the site so nothing gets a heavy dark halo.',
+      'Added a confirmation prompt before the Portal button takes you to a different site.'
+  ]},
+  { ver: 'V3.4.5', status: 'prev', notes: [
+      'Added a full cinematic HUD-style loading sequence when logging in and signing out.',
+      'Login fields now glow green for a moment right after a successful login.',
+      'Switching between Futures and MT5 now plays a smoother tilt/blur transition on the calculator card.',
+      'Smoothed out popup, confirmation, and button transitions across the whole site.'
+  ]},
+  { ver: 'V3.4', status: 'prev', notes: [
       "Lot's Value input is now fully hidden in MT5 mode — the calculation still runs behind the scenes using the instrument's default lot value.",
       'Added a Reset button to instantly restore all inputs back to their default values.',
       'Added a new Customization button with locally saved color themes for the whole site.'
